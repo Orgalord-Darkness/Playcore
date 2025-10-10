@@ -3,3 +3,34 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+app.swagger_ui:
+    path: /api/doc
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.swagger_ui }
+
+# config/routes.yaml
+app.redocly:
+    path: /api/doc
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.redocly }
+
+# config/routes.yaml
+app.stoplight:
+    path: /api/doc
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.stoplight }
+
+# config/routes.yaml
+app.swagger:
+    path: /api/doc.json
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.swagger }
+
+# config/packages/nelmio_api_doc.yaml
+nelmio_api_doc:
+    areas:
+        path_patterns: # an array of regexps (document only routes under /api, except /api/doc)
+            - ^/api(?!/doc$)
+        host_patterns: # document only routes with a host of the form api.*
+            - ^api\.
