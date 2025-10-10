@@ -6,6 +6,8 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -16,6 +18,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[Groups(['default', 'create', 'update'])]
+    #[Assert\NotBlank(groups: ['default', 'create'])]
+    public string $username;
 
     #[ORM\Column(length: 180)]
     private ?string $email = null;
@@ -92,6 +98,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
+
+        return $this;
+    }
+
+    public function getUsername(): string
+    {
+        return $this->username;
+    }
+
+    // SETTER pour username
+    public function setUsername(string $username): static
+    {
+        $this->username = $username;
 
         return $this;
     }
