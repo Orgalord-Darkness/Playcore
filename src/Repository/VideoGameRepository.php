@@ -40,4 +40,37 @@ class VideoGameRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function create(VideoGame $videoGame): void
+    {
+        $em = $this->getEntityManager();
+        $em->persist($videoGame);
+        $em->flush();
+    }
+
+    // READ by ID
+    public function findById(int $id): ?VideoGame
+    {
+        return $this->find($id);
+    }
+
+    // READ all
+    public function findAllVideoGames(): array
+    {
+        return $this->findAll();
+    }
+
+    // UPDATE (the entity should already be managed, just flush changes)
+    public function update(): void
+    {
+        $this->getEntityManager()->flush();
+    }
+
+    // DELETE
+    public function delete(VideoGame $videoGame): void
+    {
+        $em = $this->getEntityManager();
+        $em->remove($videoGame);
+        $em->flush();
+    }
 }
