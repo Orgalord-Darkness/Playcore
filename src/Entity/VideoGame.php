@@ -2,9 +2,14 @@
 
 namespace App\Entity;
 
+use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use App\Repository\VideoGameRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
+use App\Entity\Category; 
+use App\Entity\Editor; 
 
 #[ORM\Entity(repositoryClass: VideoGameRepository::class)]
 class VideoGame
@@ -15,13 +20,23 @@ class VideoGame
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "un titre est obligatoire")]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\NotBlank(message: "la date de sortie est obligatoire")]
     private ?\DateTime $releaseDate = null;
 
     #[ORM\Column(length: 1000)]
+    #[Assert\NotBlank(message: "une description est obligatoire")]
     private ?string $description = null;
+
+    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'categories')]
+    private ?Collection $categories = null;
+
+    #[ORM\ManyToOne(targetEntity: Editor::class)]
+    private ?Editor $editor = null;
+    
 
     public function getId(): ?int
     {
@@ -67,6 +82,32 @@ class VideoGame
     public function setDescription(string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getCategory(): ?Collection
+    {
+        return $this->categories; 
+    }
+
+    public function setCategory(Category $category): static
+    {
+        if(!$this->categories->contains($category)) {
+            $this->categories->add($category);
+        }
+
+        return $this;
+    }
+
+    public function getEditor(): ?Editor 
+    {
+        return $this->categories; 
+    }
+
+    public function setEditor(Editor $editor): static 
+    {
+        $this->editor = $editor;
 
         return $this;
     }
