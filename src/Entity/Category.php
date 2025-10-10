@@ -18,9 +18,6 @@ class Category
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\ManyToMany(targetEntity: VideoGame::class, inversedBy: 'videogames')]
-    private ?Collection $videogames = null;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -42,17 +39,6 @@ class Category
     {
         $this->name = $name;
 
-        return $this;
-    }
-
-    public function getVideoGames(): Collection
-    {
-        return $this->videogames;
-    }
-
-    public function setVideoGames(Collection $videogames): self
-    {
-        $this->videogames = $videogames;
         return $this;
     }
 }
