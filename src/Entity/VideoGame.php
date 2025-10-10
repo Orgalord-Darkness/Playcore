@@ -31,8 +31,10 @@ class VideoGame
     #[Assert\NotBlank(message: "une description est obligatoire")]
     private ?string $description = null;
 
-    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'categories')]
-    private ?Collection $categories = null;
+    #[ORM\ManyToMany(targetEntity: Category::class)]
+    #[ORM\JoinTable(name: 'video_game_category')]
+    private Collection $categories;
+
 
     #[ORM\ManyToOne(targetEntity: Editor::class)]
     private ?Editor $editor = null;
@@ -99,7 +101,7 @@ class VideoGame
 
     public function getEditor(): ?Editor 
     {
-        return $this->categories; 
+        return $this->editor; 
     }
 
     public function setEditor(Editor $editor): static 
