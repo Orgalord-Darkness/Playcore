@@ -6,6 +6,7 @@ use App\Repository\VideoGameRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use OpenApi\Attributes as OA;
 
 final class VideoGameController extends AbstractController
 {
@@ -19,6 +20,7 @@ final class VideoGameController extends AbstractController
     }
 
     #[Route('/api/v1/video/game', name: 'videogames', methods: ['GET'])]
+    #[OA\Tag(name: 'Video Games')]
     public function getVideoGames(VideoGameRepository $video_game_repository): JsonResponse
     {
         $videogames = $video_game_repository->findAllVideoGames();

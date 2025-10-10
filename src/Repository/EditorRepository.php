@@ -6,9 +6,6 @@ use App\Entity\Editor;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Editor>
- */
 class EditorRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -16,28 +13,37 @@ class EditorRepository extends ServiceEntityRepository
         parent::__construct($registry, Editor::class);
     }
 
-    //    /**
-    //     * @return Editor[] Returns an array of Editor objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('e.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    // CREATE ou UPDATE (persist)
+    public function save(Editor $editor, bool $flush = true): void
+    {
+        $em = $this->getEntityManager();
+        $em->persist($editor);
 
-    //    public function findOneBySomeField($value): ?Editor
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if ($flush) {
+            $em->flush();
+        }
+    }
+
+    // READ - Trouver un Editor par id
+    public function findOneById(int $id): ?Editor
+    {
+        return $this->find($id);
+    }
+
+    // READ - Trouver tous les Editors
+    public function findAllEditors(): array
+    {
+        return $this->findAll();
+    }
+
+    // DELETE un Editor
+    public function remove(Editor $editor, bool $flush = true): void
+    {
+        $em = $this->getEntityManager();
+        $em->remove($editor);
+
+        if ($flush) {
+            $em->flush();
+        }
+    }
 }

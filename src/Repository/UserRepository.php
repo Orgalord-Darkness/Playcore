@@ -5,56 +5,63 @@ namespace App\Repository;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
+use Doctrine\ORM\ORMException;
 
-/**
- * @extends ServiceEntityRepository<User>
- */
-class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
+class UserRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, User::class);
     }
 
-    /**
-     * Used to upgrade (rehash) the user's password automatically over time.
-     */
-    public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
+    // CREATE ou UPDATE (persist)
+    public function save(User $user, bool $flush = true): void
     {
-        if (!$user instanceof User) {
-            throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', $user::class));
-        }
+        $em = $this->getEntityManager();
+        $em->persist($user);
 
-        $user->setPassword($newHashedPassword);
-        $this->getEntityManager()->persist($user);
-        $this->getEntityManager()->flush();
+        if ($flush) {
+            $em->flush();
+        }
     }
 
-    //    /**
-    //     * @return User[] Returns an array of User objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('u.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    // READ - Trouver un User par id
+    public function findOneById(int $id): ?User
+    {
+        return $this->find($id);
+    }
 
-    //    public function findOneBySomeField($value): ?User
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    // READ - Trouver un User par email
+    public function findOneByEmail(string $email): ?User
+    {
+        return $this->findOneBy(['email' => $email]);
+    }
+
+    // READ - Trouver tous les Users
+    public function findAllUsers(): array
+    {
+        return $this->findAll();
+    }
+
+    public function findAllWithPagination($page, $limit){
+        $qb = $this->createQueryBuilder('u')
+        ->setFirstResult(($page - 1) * $limit)
+        ->setMaxResults($limit);
+
+        return $qb->GetQuery()->getResult();
+    }
+
+    // UPDATE est souvent un save sur une entité déjà chargée
+    // Pas besoin d’une méthode spécifique, on utilise save()
+
+    // DELETE un User
+    public function remove(User $user, bool $flush = true): void
+    {
+        $em = $this->getEntityManager();
+        $em->remove($user);
+
+        if ($flush) {
+            $em->flush();
+        }
+    }
 }
