@@ -50,12 +50,9 @@ class Category
         return $this->videogames;
     }
 
-    public function setVideoGame(VideoGame $videoGame): static
+    public function setVideoGames(Collection $videogames): self
     {
-        if(!$this->videogames->contains($videoGame)) {
-            $this->videogames->add($videoGame);
-        }
-
+        $this->videogames = $videogames;
         return $this;
     }
 }

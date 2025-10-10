@@ -91,12 +91,9 @@ class VideoGame
         return $this->categories; 
     }
 
-    public function setCategory(Category $category): static
+    public function setCategories(Collection $categories): self
     {
-        if(!$this->categories->contains($category)) {
-            $this->categories->add($category);
-        }
-
+        $this->categories = $categories;
         return $this;
     }
 

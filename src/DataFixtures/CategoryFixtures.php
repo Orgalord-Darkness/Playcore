@@ -13,7 +13,10 @@ class CategoryFixtures extends Fixture
         $categories = [
             'RPG' => 'category_rpg',
             'FPS' => 'category_fps',
-            'Adventure' => 'category_adventure',
+            'Action' => 'category_action',      // ajouté, utilisé pour Sekiro
+            'Adventure' => 'category_adventure', // corrigé pour correspondre à 'category_adventure' en lowercase
+            'Sandbox' => 'category_sandbox',
+            'Sports' => 'category_sports',
             'Platformer' => 'category_platformer',
             'Puzzle' => 'category_puzzle',
             'Simulation' => 'category_simulation',
@@ -23,8 +26,6 @@ class CategoryFixtures extends Fixture
             'Fighting' => 'category_fighting',
             'MMO' => 'category_mmo',
             'Stealth' => 'category_stealth',
-            'Sports' => 'category_sports',
-            'Sandbox' => 'category_sandbox',
             'Rhythm' => 'category_rhythm',
             'Survival' => 'category_survival',
             'Card Game' => 'category_card_game',

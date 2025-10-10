@@ -58,6 +58,12 @@ class EditorFixtures extends Fixture
         $manager->persist($activision);
         $this->addReference('editor_activision', $activision);
 
+        $bandaiNamco = new Editor();
+        $bandaiNamco->setName('Bandai Namco')
+                    ->setCountry('Japan');
+        $manager->persist($bandaiNamco);
+        $this->addReference('editor_bandai-namco', $bandaiNamco);
+
         $manager->flush();
     }
 }
