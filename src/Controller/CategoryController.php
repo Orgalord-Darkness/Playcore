@@ -8,8 +8,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use App\Entity\Editor;
-use App\Repository\EditorRepository;
+use App\Entity\Category;
+use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Serializer;
@@ -19,67 +19,67 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
-final class EditorController extends AbstractController
+final class CategoryController extends AbstractController
 {
-    #[Route('/editor', name: 'app_editor')]
+    #[Route('/category', name: 'app_category')]
     public function index(): Response
     {
-        return $this->render('editor/index.html.twig', [
-            'controller_name' => 'EditorController',
+        return $this->render('category/index.html.twig', [
+            'controller_name' => 'CategoryController',
         ]);
     }
 
-    #[Route('/api/v1/editors/list', methods: ['GET'])]
-    #[OA\Tag(name: 'Editors')]
-    public function editors(EditorRepository $repository, Request $request){
+    #[Route('/api/v1/category/list', methods: ['GET'])]
+    #[OA\Tag(name: 'Categories')]
+    public function categories(CategoryRepository $repository, Request $request){
 
         $page = $request->get('page',1);
         $limit = $request->get('limit',3);
 
-        $editors = $repository->findAllWithPagination($page,$limit);
+        $categories = $repository->findAllWithPagination($page,$limit);
         
-        return $this->json($editors);
+        return $this->json($categories);
     }
 
-    #[Route('/api/v1/editors/create', methods: ['POST'])]
-    #[OA\Tag(name: 'Editors')]
-    public function createEditor(
-        EditorRepository $repository, 
+    #[Route('/api/v1/category/create', methods: ['POST'])]
+    #[OA\Tag(name: 'Categories')]
+    public function createCategory(
+        CategoryRepository $repository, 
         Request $request,
         EntityManagerInterface $em, 
         SerializerInterface $serializer,
         UrlGeneratorInterface $urlGenerator): JsonResponse
     {
-        $editor = $serializer->deserialize($request->getContent(), Editor::class, 'json');
+        $category = $serializer->deserialize($request->getContent(), Category::class, 'json');
         $em->persist($serializer);
         $em->flush();
 
         $location= $urlGenerator->generate(
-            'editor',
-            ['id' => $editor->getId()],
+            'category',
+            ['id' => $category->getId()],
             UrlGeneratorInterface::ABSOLUTE_URL
         ); 
         
-        return $this->json($editor, Response::HTTP_CREATED, 
-        ["Location" => $location], ['groups' => 'getEditor']);
+        return $this->json($category, Response::HTTP_CREATED, 
+        ["Location" => $location], ['groups' => 'getCategory']);
     }
 
-    #[Route('/api/v1/editor/{id}', name:"updateEditor", methods:['PUT'])]
-    #[OA\Tag(name: 'Editors')]
-    public function updateEditor(
-        Request $request, SerializerInterface $serializer, Editor $currentEditor,
+    #[Route('/api/v1/category/update/{id}', name:"updateCategory", methods:['PUT'])]
+    #[OA\Tag(name: 'Categories')]
+    public function updateCategory(
+        Request $request, SerializerInterface $serializer, Category $currentCategory,
         EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator): JsonResponse
     {
-        $updatedEditor = $serializer->deserialize($request->getContent(),
-            Editor::class, 
+        $updatedCategory = $serializer->deserialize($request->getContent(),
+            Category::class, 
             'json',
-            [AbstractNormalizer::OBJECT_TO_POPULATE => $currentEditor]);
+            [AbstractNormalizer::OBJECT_TO_POPULATE => $currentCategory]);
         
-        $em->persist($updatedEditor);
+        $em->persist($updatedCategory);
         $em->flush();
 
         $location = $urlGenerator->generate(
-            'editor', ['id' => $updatedEditor->getId()],
+            'category', ['id' => $updatedCategory->getId()],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
@@ -87,17 +87,14 @@ final class EditorController extends AbstractController
         
     }
 
-    #[Route('/api/v1/editor/{id}', name:'deleteEditor', methods:['DELETE'])]
+    #[Route('/api/v1/category/{id}', name:'deleteCategory', methods:['DELETE'])]
     //#[IsGranted('ROLE_ADMIN', message:'Vous n\'êtes pas autorisé à supprimer un élément')]
-    #[OA\Tag(name: 'Editors')]
-    public function deleteEditor(Editor $editor, EntityManagerInterface $em): JsonResponse
+    #[OA\Tag(name: 'Categories')]
+    public function deleteCategory(Category $category, EntityManagerInterface $em): JsonResponse
     {
-        $em->remove($editor);
+        $em->remove($category);
         $em->flush();
         
         return new JsonResponse(['status' => 'success'], Response::HTTP_OK);
     }
-
-
-
 }

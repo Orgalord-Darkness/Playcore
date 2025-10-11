@@ -41,6 +41,14 @@ class VideoGameRepository extends ServiceEntityRepository
     //        ;
     //    }
 
+    public function findAllWithPagination($page, $limit): array
+    {
+        $qb = $this->createQueryBuilder('v')
+        ->setFirstResult(($page - 1) * $limit)
+        ->setMaxResults($limit);
+        return $qb->getQuery()->getResult();
+    }
+
     public function create(VideoGame $videoGame): void
     {
         $em = $this->getEntityManager();

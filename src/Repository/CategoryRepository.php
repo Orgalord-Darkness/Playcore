@@ -41,6 +41,14 @@ class CategoryRepository extends ServiceEntityRepository
     //        ;
     //    }
 
+    public function findAllWithPagination($page, $limit): array
+    {
+        $qb = $this->createQueryBuilder('c')
+        ->setFirstResult(($page - 1) * $limit)
+        ->setMaxResults($limit);
+        return $qb->getQuery()->getResult();
+    }
+
     public function create(Category $category): void
     {
         $this->_em->persist($category);
