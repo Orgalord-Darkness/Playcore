@@ -18,6 +18,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 final class CategoryController extends AbstractController
 {
@@ -31,14 +34,21 @@ final class CategoryController extends AbstractController
 
     #[Route('/api/v1/category/list', methods: ['GET'])]
     #[OA\Tag(name: 'Categories')]
-    public function categories(CategoryRepository $repository, Request $request){
+    public function categories(CategoryRepository $repository, 
+    Request $request, TagAwareCacheInterface $cachePool){
 
         $page = $request->get('page',1);
         $limit = $request->get('limit',3);
 
-        $categories = $repository->findAllWithPagination($page,$limit);
-        
-        return $this->json($categories);
+        $cacheIdentifier = "getCategories-".$page." - ".$limit; 
+
+        $categories = $cachePool->get($cacheIdentifier, 
+            function (ItemInterface $item) use ($repository, $page,$limit){
+                $item->tag('categoryCache');
+                return $repository->findAllWithPagination($page,$limit);
+            }
+        ); 
+        return $this->json($categories, Response::HTTP_OK,['groups' => 'getCategory']);
     }
 
     #[Route('/api/v1/category/create', methods: ['POST'])]
@@ -48,11 +58,14 @@ final class CategoryController extends AbstractController
         Request $request,
         EntityManagerInterface $em, 
         SerializerInterface $serializer,
-        UrlGeneratorInterface $urlGenerator): JsonResponse
+        UrlGeneratorInterface $urlGenerator,
+        TagAwareCacheInterface $cachePool): JsonResponse
     {
         $category = $serializer->deserialize($request->getContent(), Category::class, 'json');
         $em->persist($serializer);
         $em->flush();
+
+        $cachePool->invalidateTags(['categoryCache']);
 
         $location= $urlGenerator->generate(
             'category',
@@ -68,7 +81,7 @@ final class CategoryController extends AbstractController
     #[OA\Tag(name: 'Categories')]
     public function updateCategory(
         Request $request, SerializerInterface $serializer, Category $currentCategory,
-        EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator): JsonResponse
+        EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator, TagAwareCacheInterface $cachePool): JsonResponse
     {
         $updatedCategory = $serializer->deserialize($request->getContent(),
             Category::class, 
@@ -77,6 +90,8 @@ final class CategoryController extends AbstractController
         
         $em->persist($updatedCategory);
         $em->flush();
+
+        $cachePool->invalidateTags(['categoryCache']);
 
         $location = $urlGenerator->generate(
             'category', ['id' => $updatedCategory->getId()],
@@ -90,10 +105,12 @@ final class CategoryController extends AbstractController
     #[Route('/api/v1/category/{id}', name:'deleteCategory', methods:['DELETE'])]
     //#[IsGranted('ROLE_ADMIN', message:'Vous n\'êtes pas autorisé à supprimer un élément')]
     #[OA\Tag(name: 'Categories')]
-    public function deleteCategory(Category $category, EntityManagerInterface $em): JsonResponse
+    public function deleteCategory(Category $category, EntityManagerInterface $em, TagAwareCacheInterface $cachePool): JsonResponse
     {
         $em->remove($category);
         $em->flush();
+
+        $cachePool->invalidateTags(['categoryCache']);
         
         return new JsonResponse(['status' => 'success'], Response::HTTP_OK);
     }

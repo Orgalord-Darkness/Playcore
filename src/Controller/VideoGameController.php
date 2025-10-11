@@ -18,6 +18,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 final class VideoGameController extends AbstractController
 {
@@ -44,14 +47,22 @@ final class VideoGameController extends AbstractController
 
     #[Route('/api/v1/videogame/list', methods: ['GET'])]
     #[OA\Tag(name: 'Video Games')]
-    public function categories(VideoGameRepository $repository, Request $request){
+    public function categories(VideoGameRepository $repository, 
+    Request $request, TagAwareCacheInterface $cachePool){
 
         $page = $request->get('page',1);
         $limit = $request->get('limit',3);
 
-        $categories = $repository->findAllWithPagination($page,$limit);
-        
-        return $this->json($categories);
+        $cacheIdentifier = "getAllVideoGames-".$page." - ".$limit; 
+
+        $videogames = $cachePool->get($cacheIdentifier, 
+            function (ItemInterface $item) use ($repository, $page,$limit){
+                $item->tag('videogameCache');
+                return $repository->findAllWithPagination($page,$limit);
+            }
+        ); 
+
+        return $this->json($videogames, Response::HTTP_OK,['groups' => 'getVideoGame']);
     }
 
     #[Route('/api/v1/videogame/create', methods: ['POST'])]
@@ -61,11 +72,14 @@ final class VideoGameController extends AbstractController
         Request $request,
         EntityManagerInterface $em, 
         SerializerInterface $serializer,
-        UrlGeneratorInterface $urlGenerator): JsonResponse
+        UrlGeneratorInterface $urlGenerator,
+        TagAwareCacheInterface $cachePool): JsonResponse
     {
         $videogame = $serializer->deserialize($request->getContent(), VideoGame::class, 'json');
         $em->persist($serializer);
         $em->flush();
+
+        $cachePool->invalidateTags(['videogameCache']);
 
         $location= $urlGenerator->generate(
             'videogame',
@@ -81,7 +95,7 @@ final class VideoGameController extends AbstractController
     #[OA\Tag(name: 'Video Games')]
     public function updateVideoGame(
         Request $request, SerializerInterface $serializer, VideoGame $currentVideoGame,
-        EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator): JsonResponse
+        EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator,TagAwareCacheInterface $cachePool): JsonResponse
     {
         $updatedVideoGame = $serializer->deserialize($request->getContent(),
             VideoGame::class, 
@@ -90,6 +104,8 @@ final class VideoGameController extends AbstractController
         
         $em->persist($updatedVideoGame);
         $em->flush();
+
+        $cachePool->invalidateTags(['videogameCache']);
 
         $location = $urlGenerator->generate(
             'vidoegame', ['id' => $updatedVideoGame->getId()],
@@ -103,10 +119,12 @@ final class VideoGameController extends AbstractController
     #[Route('/api/v1/videogame/{id}', name:'deleteVideoGame', methods:['DELETE'])]
     //#[IsGranted('ROLE_ADMIN', message:'Vous n\'êtes pas autorisé à supprimer un élément')]
     #[OA\Tag(name: 'Video Games')]
-    public function deleteVideoGame(VideoGame $videogame, EntityManagerInterface $em): JsonResponse
+    public function deleteVideoGame(VideoGame $videogame, EntityManagerInterface $em,TagAwareCacheInterface $cachePool): JsonResponse
     {
         $em->remove($videogame);
         $em->flush();
+
+        $cachePool->invalidateTags(['videogameCache']);
         
         return new JsonResponse(['status' => 'success'], Response::HTTP_OK);
     }

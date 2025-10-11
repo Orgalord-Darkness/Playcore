@@ -18,6 +18,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 final class EditorController extends AbstractController
 {
@@ -29,17 +32,25 @@ final class EditorController extends AbstractController
         ]);
     }
 
-    #[Route('/api/v1/editors/list', methods: ['GET'])]
+    #[Route('/api/v1/editor/list', methods: ['GET'])]
     #[OA\Tag(name: 'Editors')]
-    public function editors(EditorRepository $repository, Request $request){
+    public function editors(EditorRepository $repository, 
+    Request $request, TagAwareCacheInterface $cachePool){
 
         $page = $request->get('page',1);
         $limit = $request->get('limit',3);
 
-        $editors = $repository->findAllWithPagination($page,$limit);
-        
-        return $this->json($editors);
+        $cacheIdentifier = "getEditors-".$page." - ".$limit; 
+
+        $editors = $cachePool->get($cacheIdentifier, 
+            function (ItemInterface $item) use ($repository, $page,$limit){
+                $item->tag('categoryCache');
+                return $repository->findAllWithPagination($page,$limit);
+            }
+        ); 
+        return $this->json($editors, Response::HTTP_OK,['groups' => 'getEditors']);
     }
+
 
     #[Route('/api/v1/editors/create', methods: ['POST'])]
     #[OA\Tag(name: 'Editors')]
@@ -48,11 +59,14 @@ final class EditorController extends AbstractController
         Request $request,
         EntityManagerInterface $em, 
         SerializerInterface $serializer,
-        UrlGeneratorInterface $urlGenerator): JsonResponse
+        UrlGeneratorInterface $urlGenerator,
+        TagAwareCacheInterface $cachePool): JsonResponse
     {
         $editor = $serializer->deserialize($request->getContent(), Editor::class, 'json');
         $em->persist($serializer);
         $em->flush();
+
+        $cachePool->invalidateTags(['editorCache']);
 
         $location= $urlGenerator->generate(
             'editor',
@@ -68,7 +82,8 @@ final class EditorController extends AbstractController
     #[OA\Tag(name: 'Editors')]
     public function updateEditor(
         Request $request, SerializerInterface $serializer, Editor $currentEditor,
-        EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator): JsonResponse
+        EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator,
+        TagAwareCacheInterface $cachePool): JsonResponse
     {
         $updatedEditor = $serializer->deserialize($request->getContent(),
             Editor::class, 
@@ -77,6 +92,7 @@ final class EditorController extends AbstractController
         
         $em->persist($updatedEditor);
         $em->flush();
+        $cachePool->invalidateTags(['editorCache']);
 
         $location = $urlGenerator->generate(
             'editor', ['id' => $updatedEditor->getId()],
@@ -90,14 +106,12 @@ final class EditorController extends AbstractController
     #[Route('/api/v1/editor/{id}', name:'deleteEditor', methods:['DELETE'])]
     //#[IsGranted('ROLE_ADMIN', message:'Vous n\'êtes pas autorisé à supprimer un élément')]
     #[OA\Tag(name: 'Editors')]
-    public function deleteEditor(Editor $editor, EntityManagerInterface $em): JsonResponse
+    public function deleteEditor(Editor $editor, EntityManagerInterface $em, TagAwareCacheInterface $cachePool): JsonResponse
     {
         $em->remove($editor);
         $em->flush();
+        $cachePool->invalidateTags(['editorCache']);
         
         return new JsonResponse(['status' => 'success'], Response::HTTP_OK);
     }
-
-
-
 }
