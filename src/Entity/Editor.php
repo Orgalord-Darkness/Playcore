@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Symfony\Component\Serializer\Annotation\Groups;
 use App\Repository\EditorRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -14,9 +15,11 @@ class Editor
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['getEditor', 'createEditor','updateEditor'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['getEditor', 'createEditor','updateEditor'])]
     private ?string $country = null;
 
     public function getId(): ?int

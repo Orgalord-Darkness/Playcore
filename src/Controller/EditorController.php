@@ -32,7 +32,7 @@ final class EditorController extends AbstractController
         ]);
     }
 
-    #[Route('/api/v1/editor/list', methods: ['GET'])]
+    #[Route('/api/v1/editor/list', name:"editors", methods: ['GET'])]
     #[OA\Tag(name: 'Editors')]
     public function editors(EditorRepository $repository, 
     Request $request, TagAwareCacheInterface $cachePool){
@@ -52,8 +52,18 @@ final class EditorController extends AbstractController
     }
 
 
-    #[Route('/api/v1/editors/create', methods: ['POST'])]
+    #[Route('/api/v1/editors/create',name:"add_editor", methods: ['POST'])]
     #[OA\Tag(name: 'Editors')]
+    #[OA\RequestBody(
+        content: new OA\JsonContent(
+            type: 'object',
+            required: ['name', 'country'], 
+            properties: [
+                new OA\Property(property: 'name', type: 'string', example: 'John Doe'),
+                new OA\Property(property: 'country', type: 'string', example: 'USA')
+            ]
+        )
+    )]
     public function createEditor(
         EditorRepository $repository, 
         Request $request,
@@ -63,13 +73,13 @@ final class EditorController extends AbstractController
         TagAwareCacheInterface $cachePool): JsonResponse
     {
         $editor = $serializer->deserialize($request->getContent(), Editor::class, 'json');
-        $em->persist($serializer);
+        $em->persist($editor);
         $em->flush();
 
         $cachePool->invalidateTags(['editorCache']);
 
         $location= $urlGenerator->generate(
-            'editor',
+            'add_editor',
             ['id' => $editor->getId()],
             UrlGeneratorInterface::ABSOLUTE_URL
         ); 
@@ -78,8 +88,18 @@ final class EditorController extends AbstractController
         ["Location" => $location], ['groups' => 'getEditor']);
     }
 
-    #[Route('/api/v1/editor/{id}', name:"updateEditor", methods:['PUT'])]
+    #[Route('/api/v1/editor/{id}', name:"update_editor", methods:['PUT'])]
     #[OA\Tag(name: 'Editors')]
+    #[OA\RequestBody(
+        content: new OA\JsonContent(
+            type: 'object',
+            required: ['name', 'country'], 
+            properties: [
+                new OA\Property(property: 'name', type: 'string', example: 'John Doe'),
+                new OA\Property(property: 'country', type: 'string', example: 'USA')
+            ]
+        )
+    )]
     public function updateEditor(
         Request $request, SerializerInterface $serializer, Editor $currentEditor,
         EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator,
@@ -88,14 +108,14 @@ final class EditorController extends AbstractController
         $updatedEditor = $serializer->deserialize($request->getContent(),
             Editor::class, 
             'json',
-            [AbstractNormalizer::OBJECT_TO_POPULATE => $currentEditor]);
+            [AbstractNormalizer::OBJECT_TO_POPULATE => $currentEditor, 'groups' => ['updateEditor']]);
         
         $em->persist($updatedEditor);
         $em->flush();
         $cachePool->invalidateTags(['editorCache']);
 
         $location = $urlGenerator->generate(
-            'editor', ['id' => $updatedEditor->getId()],
+            'update_editor', ['id' => $updatedEditor->getId()],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 

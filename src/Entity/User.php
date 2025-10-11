@@ -19,16 +19,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[Groups(['default', 'create', 'update'])]
+    #[Groups(['getUser', 'createUser', 'updateUser'])]
     #[Assert\NotBlank(groups: ['default', 'create'])]
     public string $username;
 
+    #[Groups(['getUser', 'createUser', 'updateUser'])]
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
     /**
      * @var list<string> The user roles
      */
+    #[Groups(['getUser', 'createUser', 'updateUser'])]
     #[ORM\Column]
     private array $roles = [];
 
@@ -36,6 +38,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
+    #[Groups(['getUser', 'createUser', 'updateUser'])]
     private ?string $password = null;
 
     public function getId(): ?int

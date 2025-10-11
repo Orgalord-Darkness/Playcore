@@ -51,8 +51,17 @@ final class CategoryController extends AbstractController
         return $this->json($categories, Response::HTTP_OK,['groups' => 'getCategory']);
     }
 
-    #[Route('/api/v1/category/create', methods: ['POST'])]
+    #[Route('/api/v1/category/create', name:'add_category', methods: ['POST'])]
     #[OA\Tag(name: 'Categories')]
+    #[OA\RequestBody(
+        content: new OA\JsonContent(
+            type: 'object',
+            required: ['name', 'country'], 
+            properties: [
+                new OA\Property(property: 'name', type: 'string', example: 'RPG Test'),
+            ]
+        )
+    )]
     public function createCategory(
         CategoryRepository $repository, 
         Request $request,
@@ -62,13 +71,13 @@ final class CategoryController extends AbstractController
         TagAwareCacheInterface $cachePool): JsonResponse
     {
         $category = $serializer->deserialize($request->getContent(), Category::class, 'json');
-        $em->persist($serializer);
+        $em->persist($category);
         $em->flush();
 
         $cachePool->invalidateTags(['categoryCache']);
 
         $location= $urlGenerator->generate(
-            'category',
+            'add_category',
             ['id' => $category->getId()],
             UrlGeneratorInterface::ABSOLUTE_URL
         ); 
@@ -77,8 +86,17 @@ final class CategoryController extends AbstractController
         ["Location" => $location], ['groups' => 'getCategory']);
     }
 
-    #[Route('/api/v1/category/update/{id}', name:"updateCategory", methods:['PUT'])]
+    #[Route('/api/v1/category/update/{id}', name:"update_category", methods:['PUT'])]
     #[OA\Tag(name: 'Categories')]
+    #[OA\RequestBody(
+        content: new OA\JsonContent(
+            type: 'object',
+            required: ['name', 'country'], 
+            properties: [
+                new OA\Property(property: 'name', type: 'string', example: 'RPG Test'),
+            ]
+        )
+    )]
     public function updateCategory(
         Request $request, SerializerInterface $serializer, Category $currentCategory,
         EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator, TagAwareCacheInterface $cachePool): JsonResponse
@@ -94,7 +112,7 @@ final class CategoryController extends AbstractController
         $cachePool->invalidateTags(['categoryCache']);
 
         $location = $urlGenerator->generate(
-            'category', ['id' => $updatedCategory->getId()],
+            'update_category', ['id' => $updatedCategory->getId()],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 

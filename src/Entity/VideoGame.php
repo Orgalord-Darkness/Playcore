@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups; 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use App\Repository\VideoGameRepository;
@@ -17,26 +18,31 @@ class VideoGame
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "un titre est obligatoire")]
+    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Assert\NotBlank(message: "la date de sortie est obligatoire")]
+    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
     private ?\DateTime $releaseDate = null;
 
     #[ORM\Column(length: 1000)]
     #[Assert\NotBlank(message: "une description est obligatoire")]
+    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
     private ?string $description = null;
 
     #[ORM\ManyToMany(targetEntity: Category::class)]
     #[ORM\JoinTable(name: 'video_game_category')]
+    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
     private Collection $categories;
 
-
-    #[ORM\ManyToOne(targetEntity: Editor::class)]
+    #[ORM\ManyToOne(targetEntity: Editor::class, cascade: ['persist'])]
+    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
     private ?Editor $editor = null;
     
 

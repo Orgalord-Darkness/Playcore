@@ -21,7 +21,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
-
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class UserController extends AbstractController
 {
@@ -44,24 +44,41 @@ final class UserController extends AbstractController
         return $this->json($categories, Response::HTTP_OK,['groups' => 'getUser']);
     }
 
-    #[Route('/api/v1/user/create', methods: ['POST'])]
+    #[Route('/api/v1/user/create', name: 'add_user',methods: ['POST'])]
     #[OA\Tag(name: 'Users')]
+    #[OA\RequestBody(
+        content: new OA\JsonContent(
+            type: 'object',
+            required: ['username', 'email', 'password'],
+            properties: [
+                new OA\Property(property: 'username', type: 'string', example: 'test'),
+                new OA\Property(property: 'email', type: 'string', format: 'email', example: 'test@example.com'),
+                new OA\Property(property: 'roles', type: 'array', items: new OA\Items(type: 'string', example: 'ROLE_USER')),
+                new OA\Property(property: 'password', type: 'string', format: 'password', example: 'securePassword123')
+            ]
+        )
+    )]
     public function createUser(
         UserRepository $repository, 
         Request $request,
         EntityManagerInterface $em, 
         SerializerInterface $serializer,
         UrlGeneratorInterface $urlGenerator,
-        TagAwareCacheInterface $cachePool): JsonResponse
+        TagAwareCacheInterface $cachePool,
+        UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
-        $em->persist($serializer);
+
+        $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
+        $user->setPassword($hashedPassword);
+
+        $em->persist($user);
         $em->flush();
 
         $cachePool->invalidateTags(['userCache']);
 
         $location= $urlGenerator->generate(
-            'user',
+            'add_user',
             ['id' => $user->getId()],
             UrlGeneratorInterface::ABSOLUTE_URL
         ); 
@@ -70,16 +87,32 @@ final class UserController extends AbstractController
         ["Location" => $location], ['groups' => 'getUser']);
     }
 
-    #[Route('/api/v1/user/update/{id}', name:"updateUser", methods:['PUT'])]
+    #[Route('/api/v1/user/update/{id}', name:"update_user", methods:['PUT'])]
     #[OA\Tag(name: 'Users')]
+    #[OA\RequestBody(
+        content: new OA\JsonContent(
+            type: 'object',
+            required: ['username', 'email', 'password'],
+            properties: [
+                new OA\Property(property: 'username', type: 'string', example: 'test'),
+                new OA\Property(property: 'email', type: 'string', format: 'email', example: 'test@example.com'),
+                new OA\Property(property: 'roles', type: 'array', items: new OA\Items(type: 'string', example: 'ROLE_USER')),
+                new OA\Property(property: 'password', type: 'string', format: 'password', example: 'securePassword123')
+            ]
+        )
+    )]
     public function updateUser(
         Request $request, SerializerInterface $serializer, User $currentUser,
-        EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator, TagAwareCacheInterface $cachePool): JsonResponse
+        EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator, 
+        TagAwareCacheInterface $cachePool,UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $updatedUser = $serializer->deserialize($request->getContent(),
             User::class, 
             'json',
             [AbstractNormalizer::OBJECT_TO_POPULATE => $currentUser]);
+        
+        $hashedPassword = $passwordHasher->hashPassword($updatedUser, $updatedUser->getPassword());
+        $updatedUser->setPassword($hashedPassword);
         
         $em->persist($updatedUser);
         $em->flush();
@@ -87,7 +120,7 @@ final class UserController extends AbstractController
         $cachePool->invalidateTags(['userCache']);
 
         $location = $urlGenerator->generate(
-            'user', ['id' => $updatedUser->getId()],
+            'update_user', ['id' => $updatedUser->getId()],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 

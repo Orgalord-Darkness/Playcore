@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Symfony\Component\Serializer\Annotation\Groups; 
 use Doctrine\Common\Collections\Collection;
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -16,6 +17,7 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['getCategory', 'createCategory', 'updateCategory'])]
     private ?string $name = null;
 
     public function getId(): ?int
