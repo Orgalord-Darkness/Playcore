@@ -40,4 +40,52 @@ class CategoryRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function create(Category $category): void
+    {
+        $this->_em->persist($category);
+        $this->_em->flush();
+    }
+
+    public function findAllCategories(): array
+    {
+        $qb = $this->createQueryBuilder('c');
+        
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findCategoryById(int $id): ?Category
+    {
+        $qb = $this->createQueryBuilder('c');
+        
+        return $qb
+            ->andWhere('c.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function updateName(int $id, string $newName): void
+    {
+        $qb = $this->createQueryBuilder('c');
+        
+        $qb->update()
+            ->set('c.name', ':newName')
+            ->where('c.id = :id')
+            ->setParameter('newName', $newName)
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->execute();
+    }
+
+    public function delete(int $id): void
+    {
+        $qb = $this->createQueryBuilder('c');
+        
+        $qb->delete()
+            ->where('c.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->execute();
+    }
 }

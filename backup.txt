@@ -18,3 +18,12 @@ nelmio_api_doc:
                     bearerFormat: JWT
         security:
             - Bearer: []
+
+
+    #[OA\Response(
+        response: 200,
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Editor::class))
+        )
+    )]

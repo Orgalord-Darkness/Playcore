@@ -31,9 +31,12 @@ class EditorRepository extends ServiceEntityRepository
     }
 
     // READ - Trouver tous les Editors
-    public function findAllEditors(): array
+    public function findAllWithPagination($page, $limit): array
     {
-        return $this->findAll();
+        $qb = $this->createQueryBuilder('e')
+        ->setFirstResult(($page - 1) * $limit)
+        ->setMaxResults($limit);
+        return $qb->getQuery()->getResult();
     }
 
     // DELETE un Editor
