@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Scheduler;
+
+use Symfony\Component\Scheduler\Attribute\AsSchedule;
+use Symfony\Component\Scheduler\RecurringMessage;
+use Symfony\Component\Scheduler\Schedule;
+use Symfony\Component\Scheduler\ScheduleProviderInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use App\Message\SendNewsLetterMessage;
+
+#[AsSchedule('Send')]
+final class MainSchedule implements ScheduleProviderInterface
+{
+    public function __construct(private CacheInterface $cache) {}
+
+    public function getSchedule(): Schedule
+    {
+        return (new Schedule())
+            ->add(
+                RecurringMessage::cron('30 8 * * 1', new SendNewsLetterMessage())
+            )
+            ->stateful($this->cache);
+    }
+}

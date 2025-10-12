@@ -14,7 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:send-mail',
-    description: 'Add a short description for your command',
+    description: 'To send newsletters for subcripted users',
 )]
 class SendMailCommand extends Command
 {
@@ -63,7 +63,6 @@ class SendMailCommand extends Command
                 'Newsletter Gaming',
                 'Bonjour ' . $user->getUsername() . ', voici notre dernière newsletter.',
                 'email/newsletter.html.twig',
-                ['username' => $user->getUsername()]
             );
 
 

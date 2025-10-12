@@ -177,4 +177,15 @@ final class VideoGameController extends AbstractController
 
         return new JsonResponse(['status' => 'success'], Response::HTTP_OK);
     }
+
+    #[Route('/newsletter/preview', name: 'newsletter_preview')]
+    public function previewNewsletter(VideoGameRepository $videoGameRepository): Response
+    {
+        $videoGames = $videoGameRepository->findBy([], ['releaseDate' => 'DESC'], 5);
+
+        return $this->render('email/newsletter.html.twig', [
+            'username' => 'TestUser',
+            'videoGames' => $videoGames
+        ]);
+    }
 }

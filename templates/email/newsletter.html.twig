@@ -74,31 +74,19 @@
     <div class="header">
       <h1>🔥 Gaming News - Octobre 2025</h1>
     </div>
-    <div class="content">
-      <h2>Salut {{ username }} !</h2>
-      <p>Voici les dernières actus du monde du jeu vidéo :</p>
-
-      <div class="game-highlight">
-        <h3>🎮 Elden Rift: Shadowborn</h3>
-        <p>Le nouveau RPG dark fantasy de FromSoftware sort le 20 octobre. Prépare-toi à souffrir… avec style.</p>
-      </div>
-
-      <div class="game-highlight">
-        <h3>🚗 Forza Horizon: Tokyo Drift</h3>
-        <p>Courses nocturnes, néons, et drift sur les toits de Shibuya. Disponible dès maintenant sur Xbox et PC.</p>
-      </div>
-
-      <div class="game-highlight">
-        <h3>👾 Retro Pack Vol. 2</h3>
-        <p>Rejoue aux classiques 8-bit avec des graphismes modernisés. Idéal pour les nostalgiques.</p>
-      </div>
-
-      <a href="https://example.com/gaming-news" class="button">Voir toutes les actus</a>
+  {% for game in videoGames %}
+    <div class="game-highlight">
+      <h3>🎮 {{ game.title }}</h3>
+      <p>{{ game.description }}</p>
+      <p><strong>Date de sortie :</strong> {{ game.releaseDate|date('d/m/Y') }}</p>
+      {% if game.editor %}
+        <p><strong>Éditeur :</strong> {{ game.editor.name }}</p>
+      {% endif %}
     </div>
-    <div class="footer">
-      Vous recevez cette newsletter car vous êtes abonné à notre service.<br>
-      <a href="https://example.com/unsubscribe" style="color:#ff4655;">Se désabonner</a>
-    </div>
-  </div>
+  {% else %}
+    <p>Aucun jeu vidéo récent à afficher pour le moment.</p>
+  {% endfor %}
+
+
 </body>
 </html>

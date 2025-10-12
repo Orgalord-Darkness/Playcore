@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\VideoGameRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,9 +21,13 @@ final class MailerController extends AbstractController
     }
 
     #[Route('/test-mail', name: 'test_mail')]
-    public function testMail(MailerInterface $mailer, Environment $twig): Response
+    public function testMail(MailerInterface $mailer, Environment $twig, VideoGameRepository $video_game_repository): Response
     {
-        $html = $twig->render('email/newsletter.html.twig', ['username' => 'Test']);
+        $videoGames = $video_game_repository->findBy([], ['releaseDate' => 'DESC'], 5);
+        $html = $twig->render('email/newsletter.html.twig', [
+            'videoGames' => $videoGames
+        ]);
+
 
         $email = (new Email())
             ->from('no-reply@example.com')

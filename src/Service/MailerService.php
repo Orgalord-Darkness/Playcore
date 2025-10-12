@@ -3,6 +3,7 @@
 namespace App\Service; 
 
 use Symfony\Component\Mailer\MailerInterface;
+use App\Repository\VideoGameRepository; 
 use Symfony\Component\Mime\Email;
 use Twig\Environment;
 
@@ -10,19 +11,25 @@ class MailerService
 {
     private MailerInterface $mailer; 
     private Environment $twig;
+    private VideoGameRepository $video_game_repository;
 
-    public function __construct(MailerInterface $mailer, Environment $twig)
+    public function __construct(MailerInterface $mailer, Environment $twig, VideoGameRepository $video_game_repository)
     {
         $this->mailer = $mailer; 
         $this->twig = $twig; 
+        $this->video_game_repository = $video_game_repository; 
     }
 
-    public function sendEmail(string $to, string $subject, string $content,string $template, array $context): void
+    public function sendEmail(string $to, string $subject, string $content,string $template): void
     {
-        $html = $this->twig->render($template, $context);
+        $videoGames = $this->video_game_repository->findBy([], ['releaseDate' => 'DESC'], 5);
+        $html = $this->twig->render($template, [
+            'videoGames' => $videoGames
+        ]);
 
+        
         $email = (new Email())
-            ->from('no-reply@example.com')
+            ->from('newsletter@playcore.com')
             ->to($to)
             ->subject($subject)
             ->text($content)
@@ -30,6 +37,4 @@ class MailerService
 
         $this->mailer->send($email);
     }
-
-
 }
