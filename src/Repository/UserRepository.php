@@ -51,6 +51,16 @@ class UserRepository extends ServiceEntityRepository
         return $qb->GetQuery()->getResult();
     }
 
+    public function findUsersBySubcription(): array 
+    {
+        return $this->createQueryBuilder('u')
+            ->where('u.subcription_to_newsletter = :subscribed')
+            ->setParameter('subscribed', true)
+            ->getQuery()
+            ->getResult();
+    }
+
+
     // UPDATE est souvent un save sur une entité déjà chargée
     // Pas besoin d’une méthode spécifique, on utilise save()
 

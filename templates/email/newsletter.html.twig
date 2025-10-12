@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Newsletter Gaming</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      background-color: #1e1e2f;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background-color: #2a2a3d;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    .header {
+      background-color: #ff4655;
+      padding: 20px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 26px;
+      color: #fff;
+    }
+    .content {
+      padding: 30px;
+    }
+    .content h2 {
+      color: #ff4655;
+      font-size: 20px;
+    }
+    .content p {
+      line-height: 1.6;
+      font-size: 15px;
+    }
+    .game-highlight {
+      background-color: #3a3a4f;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 20px;
+    }
+    .game-highlight h3 {
+      margin-top: 0;
+      color: #ffd700;
+    }
+    .button {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 20px;
+      background-color: #ff4655;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .footer {
+      background-color: #1e1e2f;
+      text-align: center;
+      padding: 15px;
+      font-size: 12px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔥 Gaming News - Octobre 2025</h1>
+    </div>
+    <div class="content">
+      <h2>Salut {{ username }} !</h2>
+      <p>Voici les dernières actus du monde du jeu vidéo :</p>
+
+      <div class="game-highlight">
+        <h3>🎮 Elden Rift: Shadowborn</h3>
+        <p>Le nouveau RPG dark fantasy de FromSoftware sort le 20 octobre. Prépare-toi à souffrir… avec style.</p>
+      </div>
+
+      <div class="game-highlight">
+        <h3>🚗 Forza Horizon: Tokyo Drift</h3>
+        <p>Courses nocturnes, néons, et drift sur les toits de Shibuya. Disponible dès maintenant sur Xbox et PC.</p>
+      </div>
+
+      <div class="game-highlight">
+        <h3>👾 Retro Pack Vol. 2</h3>
+        <p>Rejoue aux classiques 8-bit avec des graphismes modernisés. Idéal pour les nostalgiques.</p>
+      </div>
+
+      <a href="https://example.com/gaming-news" class="button">Voir toutes les actus</a>
+    </div>
+    <div class="footer">
+      Vous recevez cette newsletter car vous êtes abonné à notre service.<br>
+      <a href="https://example.com/unsubscribe" style="color:#ff4655;">Se désabonner</a>
+    </div>
+  </div>
+</body>
+</html>

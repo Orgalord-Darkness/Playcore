@@ -21,6 +21,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[Groups(['getUser', 'createUser', 'updateUser'])]
     #[Assert\NotBlank(groups: ['default', 'create'])]
+    #[ORM\Column]
     public string $username;
 
     #[Groups(['getUser', 'createUser', 'updateUser'])]
