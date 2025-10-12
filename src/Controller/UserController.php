@@ -54,7 +54,8 @@ final class UserController extends AbstractController
                 new OA\Property(property: 'username', type: 'string', example: 'test'),
                 new OA\Property(property: 'email', type: 'string', format: 'email', example: 'test@example.com'),
                 new OA\Property(property: 'roles', type: 'array', items: new OA\Items(type: 'string', example: 'ROLE_USER')),
-                new OA\Property(property: 'password', type: 'string', format: 'password', example: 'securePassword123')
+                new OA\Property(property: 'password', type: 'string', format: 'password', example: 'securePassword123'),
+                new OA\Property(property: 'subcription_to_newsletter', type: 'bool', format: 'bool', example: true)
             ]
         )
     )]
@@ -97,7 +98,8 @@ final class UserController extends AbstractController
                 new OA\Property(property: 'username', type: 'string', example: 'test'),
                 new OA\Property(property: 'email', type: 'string', format: 'email', example: 'test@example.com'),
                 new OA\Property(property: 'roles', type: 'array', items: new OA\Items(type: 'string', example: 'ROLE_USER')),
-                new OA\Property(property: 'password', type: 'string', format: 'password', example: 'securePassword123')
+                new OA\Property(property: 'password', type: 'string', format: 'password', example: 'securePassword123'),
+                new OA\Property(property: 'subcription_to_newsletter', type: 'bool', format: 'bool', example: true)
             ]
         )
     )]
@@ -106,6 +108,8 @@ final class UserController extends AbstractController
         EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator, 
         TagAwareCacheInterface $cachePool,UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
+        $data = json_decode($request->getContent(), true);
+
         $updatedUser = $serializer->deserialize($request->getContent(),
             User::class, 
             'json',
@@ -114,6 +118,10 @@ final class UserController extends AbstractController
         $hashedPassword = $passwordHasher->hashPassword($updatedUser, $updatedUser->getPassword());
         $updatedUser->setPassword($hashedPassword);
         
+        if (array_key_exists('subcription_to_newsletter', $data)) {
+            $updatedUser->setSubcription($data['subcription_to_newsletter']);
+        }
+
         $em->persist($updatedUser);
         $em->flush();
 

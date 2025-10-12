@@ -41,6 +41,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['getUser', 'createUser', 'updateUser'])]
     private ?string $password = null;
 
+    /**
+     * @var bool subscribe to news letter
+     */
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['getUser', 'createUser', 'updateUser'])]
+    private ?bool $subcription_to_newsletter = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -114,6 +121,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUsername(string $username): static
     {
         $this->username = $username;
+
+        return $this;
+    }
+
+    public function getSubcription(): ?bool
+    {
+        return $this->subcription_to_newsletter;
+    }
+
+    public function setSubcription(bool $subcription_to_newsletter): static
+    {
+        $this->subcription_to_newsletter = $subcription_to_newsletter;
 
         return $this;
     }

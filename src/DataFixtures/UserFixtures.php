@@ -23,7 +23,8 @@ class UserFixtures extends Fixture
         $user->setUsername('john_doe')
             ->setEmail('john.doe@example.com')
             ->setRoles(['ROLE_USER'])
-            ->setPassword($this->passwordHasher->hashPassword($user, 'password123'));
+            ->setPassword($this->passwordHasher->hashPassword($user, 'password123'))
+            ->setSubcription(true);
 
         $manager->persist($user);
 
@@ -32,7 +33,8 @@ class UserFixtures extends Fixture
         $admin->setUsername('admin')
             ->setEmail('admin@example.com')
             ->setRoles(['ROLE_ADMIN'])
-            ->setPassword($this->passwordHasher->hashPassword($admin, 'adminpass'));
+            ->setPassword($this->passwordHasher->hashPassword($admin, 'adminpass'))
+            ->setSubcription(true);
 
         $manager->persist($admin);
 
@@ -41,7 +43,8 @@ class UserFixtures extends Fixture
         $edward->setUsername('edward')
             ->setEmail('edward@example.com')
             ->setRoles(['ROLE_USER'])
-            ->setPassword($this->passwordHasher->hashPassword($edward, 'edwardpass'));
+            ->setPassword($this->passwordHasher->hashPassword($edward, 'edwardpass'))
+            ->setSubcription(true);
 
         $manager->persist($edward);
 
@@ -50,7 +53,8 @@ class UserFixtures extends Fixture
         $alice->setUsername('alice')
             ->setEmail('alice@example.com')
             ->setRoles(['ROLE_USER'])
-            ->setPassword($this->passwordHasher->hashPassword($alice, 'alicepass'));
+            ->setPassword($this->passwordHasher->hashPassword($alice, 'alicepass'))
+            ->setSubcription(true);
 
         $manager->persist($alice);
 
