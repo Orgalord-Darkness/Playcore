@@ -67,11 +67,11 @@ class SendMailCommand extends Command
             );
 
 
-            $io->text("Email envoyé à : $email");
-            sleep(3);
+            $io->text("message send to : $email");
+            sleep(10);
         }
 
-        $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
+        $io->success('Every users subcribed received newsletter | Pass --help to see your options.');
 
         return Command::SUCCESS;
     }
