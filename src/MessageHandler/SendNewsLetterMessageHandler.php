@@ -27,16 +27,17 @@ class SendNewsLetterMessageHandler
         $html = $this->twig->render('email/newsletter.html.twig', [
             'videoGames' => $videoGames
         ]);
-        // $users = $this->userRepository->findAll();
-        // foreach($users as $user){
+        $users = $this->userRepository->findUsersBySubcription();
+        foreach($users as $user){
              $email = (new Email())
             ->from('newsletter@playcore.com')
-            ->to('test@example.com')
+            ->to($user->getEmail())
             ->subject('Newsletter Gaming')
             ->text('Bonjour, voici notre dernière newsletter.')
             ->html($html);
 
             $this->mailer->send($email);
-        // }   
+        }
+       
     }
 }
