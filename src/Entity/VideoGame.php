@@ -44,6 +44,10 @@ class VideoGame
     #[ORM\ManyToOne(targetEntity: Editor::class, cascade: ['persist'])]
     #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
     private ?Editor $editor = null;
+
+    #[ORM\Column(length:255)]
+    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
+    private ?string $coverImage = null;
     
 
     public function getId(): ?int
@@ -113,6 +117,18 @@ class VideoGame
     public function setEditor(Editor $editor): static 
     {
         $this->editor = $editor;
+
+        return $this;
+    }
+
+    public function getCoverImage(): ?string
+    {
+        return $this->coverImage;
+    }
+
+    public function setCoverImage(string $coverImage): static
+    {
+        $this->coverImage = $coverImage;
 
         return $this;
     }

@@ -66,22 +66,27 @@ final class VideoGameController extends AbstractController
     #[Route('/api/v1/videogame/create', name:'add_video_game', methods: ['POST'])]
     #[OA\Tag(name: 'Video Games')]
     #[OA\RequestBody(
-        content: new OA\JsonContent(
-            type: 'object',
-            required: ['title', 'releaseDate', 'description', 'editor'],
-            properties: [
-                new OA\Property(property: 'title', type: 'string', example: 'The Witcher 3'),
-                new OA\Property(property: 'releaseDate', type: 'string', format: 'date', example: '2015-05-19'),
-                new OA\Property(property: 'description', type: 'string', example: 'An open-world RPG game'),
-                new OA\Property(property: 'editor', 
-                    type: 'object', 
-                    properties: [
-                        new OA\Property(property: 'id', type: 'integer', example: 1),
-                        new OA\Property(property: 'name', type: 'string', example:"Nintendo") ,
-                        new OA\Property(property: 'country', type: 'string', example:"Japon") 
-                    ]
-                )
-            ]
+        required: true,
+        content: new OA\MediaType(
+            mediaType: "multipart/form-data",
+            schema: new OA\Schema(
+                type: "object",
+                required: ["title", "releaseDate", "description", "editor"],
+                properties: [
+                    new OA\Property(property: "title", type: "string", example: "The Witcher 3"),
+                    new OA\Property(property: "releaseDate", type: "string", format: "date", example: "2015-05-19"),
+                    new OA\Property(property: "description", type: "string", example: "An open-world RPG game"),
+                    new OA\Property(property: "coverImageFile", type: "string", format: "binary"),
+                    new OA\Property(property: "editor", 
+                        type: "object", 
+                        properties: [
+                            new OA\Property(property: "id", type: "integer", example: 1),
+                            new OA\Property(property: "name", type: "string", example:"Nintendo"),
+                            new OA\Property(property: "country", type: "string", example:"Japon")
+                        ]
+                    )
+                ]
+            )
         )
     )]
     public function createVideoGame(
@@ -116,22 +121,27 @@ final class VideoGameController extends AbstractController
     #[Route('/api/v1/videogame/{id}', name: "update_video_game", methods: ['PUT'])]
     #[OA\Tag(name: 'Video Games')]
     #[OA\RequestBody(
-        content: new OA\JsonContent(
-            type: 'object',
-            required: ['title', 'releaseDate', 'description', 'editor'],
-            properties: [
-                new OA\Property(property: 'title', type: 'string', example: 'The Witcher 3'),
-                new OA\Property(property: 'releaseDate', type: 'string', format: 'date', example: '2015-05-19'),
-                new OA\Property(property: 'description', type: 'string', example: 'An open-world RPG game'),
-                new OA\Property(property: 'editor', 
-                    type: 'object', 
-                    properties: [
-                        new OA\Property(property: 'id', type: 'integer', example: 1),
-                        new OA\Property(property: 'name', type: 'string', example:"Nintendo") ,
-                        new OA\Property(property: 'country', type: 'string', example:"Japon") 
-                    ]
-                )
-            ]
+        required: true,
+        content: new OA\MediaType(
+            mediaType: "multipart/form-data",
+            schema: new OA\Schema(
+                type: "object",
+                required: ["title", "releaseDate", "description", "editor"],
+                properties: [
+                    new OA\Property(property: "title", type: "string", example: "The Witcher 3"),
+                    new OA\Property(property: "releaseDate", type: "string", format: "date", example: "2015-05-19"),
+                    new OA\Property(property: "description", type: "string", example: "An open-world RPG game"),
+                    new OA\Property(property: "coverImageFile", type: "string", format: "binary"),
+                    new OA\Property(property: "editor", 
+                        type: "object", 
+                        properties: [
+                            new OA\Property(property: "id", type: "integer", example: 1),
+                            new OA\Property(property: "name", type: "string", example:"Nintendo"),
+                            new OA\Property(property: "country", type: "string", example:"Japon")
+                        ]
+                    )
+                ]
+            )
         )
     )]
     public function updateVideoGame(
@@ -142,6 +152,10 @@ final class VideoGameController extends AbstractController
         UrlGeneratorInterface $urlGenerator, 
         TagAwareCacheInterface $cachePool
     ): JsonResponse {
+        $file = $request->files->get('coverImage');
+        if ($file) {
+            $currentVideoGame->setCoverImage($file);
+        }
         $updatedVideoGame = $serializer->deserialize(
             $request->getContent(),
             VideoGame::class, 
@@ -154,7 +168,6 @@ final class VideoGameController extends AbstractController
 
         $cachePool->invalidateTags(['videogameCache']);
 
-        // Générer l'URL pour la ressource mise à jour
         $location = $urlGenerator->generate(
             'update_video_game', ['id' => $updatedVideoGame->getId()],
             UrlGeneratorInterface::ABSOLUTE_URL
@@ -182,9 +195,10 @@ final class VideoGameController extends AbstractController
     public function previewNewsletter(VideoGameRepository $videoGameRepository): Response
     {
         $videoGames = $videoGameRepository->findBy([], ['releaseDate' => 'DESC'], 5);
+        // dd($videoGames);
 
         return $this->render('email/newsletter.html.twig', [
-            'username' => 'TestUser',
+            'username' => 'Heddy',
             'videoGames' => $videoGames
         ]);
     }

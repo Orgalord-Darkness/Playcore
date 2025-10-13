@@ -1,5 +1,4 @@
-<?php
-
+<?php 
 namespace App\DataFixtures;
 
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -22,6 +21,7 @@ class VideoGameFixtures extends Fixture
         $game1->setCategories(new ArrayCollection([
             $this->getReference('category_rpg', Category::class)
         ]));
+        $game1->setCoverImage('dark_souls.jpg');
         $manager->persist($game1);
 
         // Elden Ring
@@ -33,6 +33,7 @@ class VideoGameFixtures extends Fixture
         $gameElden->setCategories(new ArrayCollection([
             $this->getReference('category_rpg', Category::class)
         ]));
+        $gameElden->setCoverImage('elden_ring.jpg');
         $manager->persist($gameElden);
 
         // Bloodborne
@@ -44,6 +45,7 @@ class VideoGameFixtures extends Fixture
         $game2->setCategories(new ArrayCollection([
             $this->getReference('category_rpg', Category::class)
         ]));
+        $game2->setCoverImage('bloodborne.jpg');
         $manager->persist($game2);
 
         // Sekiro: Shadows Die Twice
@@ -55,9 +57,10 @@ class VideoGameFixtures extends Fixture
         $game3->setCategories(new ArrayCollection([
             $this->getReference('category_action', Category::class)
         ]));
+        $game3->setCoverImage('sekiro.jpg');
         $manager->persist($game3);
 
-        // Demon's Souls (ajouté comme 5ème jeu FromSoftware)
+        // Demon's Souls
         $game4 = new VideoGame();
         $game4->setTitle('Demon\'s Souls');
         $game4->setDescription('Jeu d\'action-RPG sombre et difficile, précurseur de Dark Souls.');
@@ -66,6 +69,7 @@ class VideoGameFixtures extends Fixture
         $game4->setCategories(new ArrayCollection([
             $this->getReference('category_rpg', Category::class)
         ]));
+        $game4->setCoverImage('demons_souls.jpg');
         $manager->persist($game4);
 
         $manager->flush();
