@@ -8,6 +8,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use App\Entity\VideoGame;
+use App\Entity\Editor;
+use App\EventListener\ExcpetionListener;
 use App\Repository\VideoGameRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -96,15 +98,45 @@ final class VideoGameController extends AbstractController
         UrlGeneratorInterface $urlGenerator,
         TagAwareCacheInterface $cachePool
     ): JsonResponse {
-        $videogame = $serializer->deserialize($request->getContent(), VideoGame::class, 'json');
+        $videogame = new VideoGame();
+        $videogame->setTitle($request->request->get('title'));
+        $videogame->setDescription($request->request->get('description'));
+
+        $releaseDate = $request->request->get('releaseDate');
+        if ($releaseDate) {
+            $videogame->setReleaseDate(new \DateTime($releaseDate));
+        }
         
-        $editor = $videogame->getEditor();
-        if (!$editor) {
-            return new JsonResponse(['status' => 'error', 'message' => 'Editor not provided'], Response::HTTP_BAD_REQUEST);
+        $coverImage = $request->files->get('coverImage');
+        if($coverImage){
+            $newFilename = uniqid().'.'.$coverImage->guessExtension();
+            try{
+                $coverImage->move(
+                    $this->getParameter('cover_image_directory'),
+                    $newFilename
+                ); 
+                $videogame->setCoverImage($newFilename); 
+            }catch(ExcpetionListener $e){
+                return new JsonResponse(['error' => 'Impossible d\'enregistrer l\'image'], 500 );
+            }
         }
-        if (empty($editor->getName())) {
-            return new JsonResponse(['status' => 'error', 'message' => 'Editor name is required'], Response::HTTP_BAD_REQUEST);
+        
+        $editorName = $request->request->get('editor[name]');
+        $editorId = $request->request->get('editor[id]');
+        $editorCountry = $request->request->get('editor[country]');
+
+        if (empty($editorName)) {
+            return new JsonResponse([
+                'status' => 'error',
+                'message' => 'Editor name is required'
+            ], Response::HTTP_BAD_REQUEST);
         }
+
+        $editor = new Editor();
+        $editor->setId($editorId);
+        $editor->setName($editorName);
+        $editor->setCountry($editorCountry);
+
         $em->persist($videogame);
         $em->flush();
 
@@ -147,21 +179,32 @@ final class VideoGameController extends AbstractController
     public function updateVideoGame(
         Request $request, 
         SerializerInterface $serializer, 
-        VideoGame $currentVideoGame,
+        VideoGame $updatedVideoGame,
         EntityManagerInterface $em, 
         UrlGeneratorInterface $urlGenerator, 
         TagAwareCacheInterface $cachePool
     ): JsonResponse {
-        $file = $request->files->get('coverImage');
-        if ($file) {
-            $currentVideoGame->setCoverImage($file);
+        $updatedVideoGame->setTitle($request->request->get('title'));
+        $updatedVideoGame->setDescription($request->request->get('description'));
+
+        $releaseDate = $request->request->get('releaseDate');
+        if ($releaseDate) {
+            $updatedVideoGame->setReleaseDate(new \DateTime($releaseDate));
         }
-        $updatedVideoGame = $serializer->deserialize(
-            $request->getContent(),
-            VideoGame::class, 
-            'json',
-            [AbstractNormalizer::OBJECT_TO_POPULATE => $currentVideoGame]
-        );
+
+        $coverImage = $request->files->get('coverImage');
+        if($coverImage){
+            $newFilename = uniqid().'.'.$coverImage->guessExtension();
+            try{
+                $coverImage->move(
+                    $this->getParameter('cover_image_directory'),
+                    $newFilename
+                ); 
+                $updatedVideoGame->setCoverImage($newFilename); 
+            }catch(ExcpetionListener $e){
+                return new JsonResponse(['error' => 'Impossible d\'enregistrer l\'image'], 500 );
+            }
+        }
 
         $em->persist($updatedVideoGame);
         $em->flush();
