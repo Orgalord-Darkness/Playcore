@@ -69,23 +69,25 @@
         <h1>🔥 Gaming News - Octobre 2025</h1>
     </div>
     <div class="content">
-        {% for game in videoGames %}
+       {% for game in videoGames %}
             <div class="game-highlight">
-                {% if imagesCid[game.id] is defined and imagesCid[game.id] %}
-                    <img src="cid:{{ imagesCid[game.id] }}" alt="Image de {{ game.title }}">
+                {% if imagesCid[game.id] %}
+                <img src="cid:{{ imagesCid[game.id] }}" alt="Image de {{ game.title }}" style="max-width:300px; height:auto; border-radius:8px;" />
                 {% else %}
-                    <p><em>Image non disponible</em></p>
+                <p><em>Image non disponible</em></p>
                 {% endif %}
+
                 <h3>🎮 {{ game.title }}</h3>
-                <p>{{ game.description|default('Aucune description disponible.') }}</p>
+                <p>{{ game.description }}</p>
                 <p><strong>Date de sortie :</strong> {{ game.releaseDate|date('d/m/Y') }}</p>
                 {% if game.editor %}
-                    <p><strong>Éditeur :</strong> {{ game.editor.name }}</p>
+                <p><strong>Éditeur :</strong> {{ game.editor.name }}</p>
                 {% endif %}
             </div>
-        {% else %}
+            {% else %}
             <p>Aucun jeu vidéo récent à afficher pour le moment.</p>
         {% endfor %}
+
     </div>
     <div class="footer">
         © 2025 Playcore - Tous droits réservés.
