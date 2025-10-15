@@ -107,35 +107,35 @@ final class VideoGameController extends AbstractController
             $videogame->setReleaseDate(new \DateTime($releaseDate));
         }
         
-        $coverImage = $request->files->get('coverImage');
-        if($coverImage){
-            $newFilename = uniqid().'.'.$coverImage->guessExtension();
-            try{
+        $coverImage = $request->files->get('coverImageFile');
+        if ($coverImage) {
+            $originalFilename = pathinfo($coverImage->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $coverImage->guessExtension();
+            $directory = $this->getParameter('cover_image_directory');
+
+            $filename = $originalFilename . '.' . $extension;
+            $counter = 1;
+            
+            while (file_exists($directory . '/' . $filename)) {
+                $filename = $originalFilename . '-' . $counter . '.' . $extension;
+                $counter++ ;
+        }
+            try {
                 $coverImage->move(
                     $this->getParameter('cover_image_directory'),
-                    $newFilename
-                ); 
-                $videogame->setCoverImage($newFilename); 
-            }catch(ExcpetionListener $e){
-                return new JsonResponse(['error' => 'Impossible d\'enregistrer l\'image'], 500 );
+                    $filename
+                );
+                $videogame->setCoverImage($filename);
+            } catch (\Exception $e) {
+                return new JsonResponse(['error' => 'Impossible d\'enregistrer l\'image'], 500);
             }
         }
-        
-        $editorName = $request->request->get('editor[name]');
-        $editorId = $request->request->get('editor[id]');
-        $editorCountry = $request->request->get('editor[country]');
-
-        if (empty($editorName)) {
-            return new JsonResponse([
-                'status' => 'error',
-                'message' => 'Editor name is required'
-            ], Response::HTTP_BAD_REQUEST);
+        $editorJson = $request->request->get('editor');
+        if ($editorJson) {
+            $editorData = json_decode($editorJson, true);
+            $editor = $em->getRepository(Editor::class)->find($editorData['id'] ?? null);
+            $videogame->setEditor($editor);
         }
-
-        $editor = new Editor();
-        $editor->setId($editorId);
-        $editor->setName($editorName);
-        $editor->setCountry($editorCountry);
 
         $em->persist($videogame);
         $em->flush();
@@ -154,26 +154,24 @@ final class VideoGameController extends AbstractController
     #[OA\Tag(name: 'Video Games')]
     #[OA\RequestBody(
         required: true,
-        content: new OA\MediaType(
-            mediaType: "multipart/form-data",
-            schema: new OA\Schema(
-                type: "object",
-                required: ["title", "releaseDate", "description", "editor"],
-                properties: [
-                    new OA\Property(property: "title", type: "string", example: "The Witcher 3"),
-                    new OA\Property(property: "releaseDate", type: "string", format: "date", example: "2015-05-19"),
-                    new OA\Property(property: "description", type: "string", example: "An open-world RPG game"),
-                    new OA\Property(property: "coverImageFile", type: "string", format: "binary"),
-                    new OA\Property(property: "editor", 
-                        type: "object", 
-                        properties: [
-                            new OA\Property(property: "id", type: "integer", example: 1),
-                            new OA\Property(property: "name", type: "string", example:"Nintendo"),
-                            new OA\Property(property: "country", type: "string", example:"Japon")
-                        ]
-                    )
-                ]
-            )
+        content: new OA\JsonContent(
+            type: "object",
+            required: ["title", "releaseDate", "description", "editor"],
+            properties: [
+                new OA\Property(property: "title", type: "string", example: "The Witcher 3"),
+                new OA\Property(property: "releaseDate", type: "string", format: "date", example: "2015-05-19"),
+                new OA\Property(property: "description", type: "string", example: "An open-world RPG game"),
+                //difficulté : PUT et multipart incompatible 
+                new OA\Property(
+                    property: "editor",
+                    type: "object",
+                    properties: [
+                        new OA\Property(property: "id", type: "integer", example: 1),
+                        new OA\Property(property: "name", type: "string", example:"Nintendo"),
+                        new OA\Property(property: "country", type: "string", example:"Japon")
+                    ]
+                )
+            ]
         )
     )]
     public function updateVideoGame(
@@ -184,26 +182,18 @@ final class VideoGameController extends AbstractController
         UrlGeneratorInterface $urlGenerator, 
         TagAwareCacheInterface $cachePool
     ): JsonResponse {
-        $updatedVideoGame->setTitle($request->request->get('title'));
-        $updatedVideoGame->setDescription($request->request->get('description'));
-
-        $releaseDate = $request->request->get('releaseDate');
-        if ($releaseDate) {
-            $updatedVideoGame->setReleaseDate(new \DateTime($releaseDate));
-        }
-
-        $coverImage = $request->files->get('coverImage');
-        if($coverImage){
-            $newFilename = uniqid().'.'.$coverImage->guessExtension();
-            try{
-                $coverImage->move(
-                    $this->getParameter('cover_image_directory'),
-                    $newFilename
-                ); 
-                $updatedVideoGame->setCoverImage($newFilename); 
-            }catch(ExcpetionListener $e){
-                return new JsonResponse(['error' => 'Impossible d\'enregistrer l\'image'], 500 );
-            }
+        try {
+            $updatedVideoGame = $serializer->deserialize(
+                $request->getContent(),
+                VideoGame::class,
+                'json',
+                [AbstractNormalizer::OBJECT_TO_POPULATE => $updatedVideoGame]
+            );
+        } catch (\Throwable $e) {
+            return new JsonResponse([
+                'status' => 'error',
+                'message' => 'Erreur lors de la désérialisation : ' . $e->getMessage()
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         $em->persist($updatedVideoGame);
@@ -212,12 +202,84 @@ final class VideoGameController extends AbstractController
         $cachePool->invalidateTags(['videogameCache']);
 
         $location = $urlGenerator->generate(
-            'update_video_game', ['id' => $updatedVideoGame->getId()],
+            'update_video_game', 
+            ['id' => $updatedVideoGame->getId()],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
-        return $this->json(['status' => 'success'], Response::HTTP_OK, ["Location" => $location]); 
+        return $this->json(['status' => 'success'], Response::HTTP_OK, ['Location' => $location]);
     }
+
+    #[Route('/api/v1/videogame/{id}/cover-image', name: "update_video_game_cover_image", methods: ['POST'])]
+    #[OA\Tag(name: 'Video Games')]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\MediaType(
+            mediaType: "multipart/form-data",
+            schema: new OA\Schema(
+                type: "object",
+                required: ["coverImage"],
+                properties: [
+                    new OA\Property(property: "coverImage", type: "string", format: "binary")
+                ]
+            )
+        )
+    )]
+    public function updateVideoGameCoverImage(
+        Request $request,
+        VideoGame $videoGame,
+        EntityManagerInterface $em,
+        UrlGeneratorInterface $urlGenerator,
+        TagAwareCacheInterface $cachePool
+    ): JsonResponse {
+        $coverImageFile = $request->files->get('coverImage');
+
+        if (!$coverImageFile) {
+            return new JsonResponse([
+                'status' => 'error',
+                'message' => 'Le fichier "coverImage" est requis.'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $originalFilename = pathinfo($coverImageFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $coverImageFile->guessExtension();
+        $directory = $this->getParameter('cover_image_directory');
+
+        $filename = $originalFilename . '.' . $extension;
+        $counter = 1;
+        
+        while (file_exists($directory . '/' . $filename)) {
+            $filename = $originalFilename . '-' . $counter . '.' . $extension;
+            $counter++ ;
+        }
+
+        try {
+            $coverImageFile->move(
+                $this->getParameter('cover_image_directory'),
+                $filename
+            );
+            $videoGame->setCoverImage($filename);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'status' => 'error',
+                'message' => 'Impossible d\'enregistrer l\'image : ' . $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        $em->persist($videoGame);
+        $em->flush();
+
+        $cachePool->invalidateTags(['videogameCache']);
+
+        $location = $urlGenerator->generate(
+            'update_video_game_cover_image',
+            ['id' => $videoGame->getId()],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+
+        return $this->json(['status' => 'success'], Response::HTTP_OK, ['Location' => $location]);
+    }
+
 
     #[Route('/api/v1/videogame/{id}', name: 'deleteVideoGame', methods: ['DELETE'])]
     #[OA\Tag(name: 'Video Games')]

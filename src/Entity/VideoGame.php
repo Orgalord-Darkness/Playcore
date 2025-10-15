@@ -45,7 +45,7 @@ class VideoGame
     #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
     private ?Editor $editor = null;
 
-    #[ORM\Column(length:255)]
+    #[ORM\Column(length:255, nullable:true)]
     #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
     private ?string $coverImage = null;
     
