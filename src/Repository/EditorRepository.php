@@ -13,7 +13,6 @@ class EditorRepository extends ServiceEntityRepository
         parent::__construct($registry, Editor::class);
     }
 
-    // CREATE ou UPDATE (persist)
     public function save(Editor $editor, bool $flush = true): void
     {
         $em = $this->getEntityManager();
@@ -24,13 +23,11 @@ class EditorRepository extends ServiceEntityRepository
         }
     }
 
-    // READ - Trouver un Editor par id
     public function findOneById(int $id): ?Editor
     {
         return $this->find($id);
     }
 
-    // READ - Trouver tous les Editors
     public function findAllWithPagination($page, $limit): array
     {
         $qb = $this->createQueryBuilder('e')
@@ -39,7 +36,6 @@ class EditorRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    // DELETE un Editor
     public function remove(Editor $editor, bool $flush = true): void
     {
         $em = $this->getEntityManager();

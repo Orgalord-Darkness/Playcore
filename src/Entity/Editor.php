@@ -16,11 +16,11 @@ class Editor
 
     #[ORM\Column(length: 255)]
     #[Groups(['getEditor', 'createEditor','updateEditor'])]
-    private ?string $name = null;
+    private ?string $name;
 
     #[ORM\Column(length: 255)]
     #[Groups(['getEditor', 'createEditor','updateEditor'])]
-    private ?string $country = null;
+    private ?string $country;
 
     public function getId(): ?int
     {

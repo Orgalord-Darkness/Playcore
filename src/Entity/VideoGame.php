@@ -36,9 +36,9 @@ class VideoGame
     #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
     private ?string $description = null;
 
-    #[ORM\ManyToMany(targetEntity: Category::class)]
+    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'videoGames')]
     #[ORM\JoinTable(name: 'video_game_category')]
-    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
+    #[Groups(['getVideoGame', 'getCategories', 'createVideoGame', 'updateVideoGame'])]
     private Collection $categories;
 
     #[ORM\ManyToOne(targetEntity: Editor::class, cascade: ['persist'])]
@@ -49,6 +49,11 @@ class VideoGame
     #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
     private ?string $coverImage = null;
     
+    public function __construct()
+    {
+        $this->categories = new ArrayCollection();
+    }
+
 
     public function getId(): ?int
     {
@@ -103,11 +108,15 @@ class VideoGame
         return $this->categories; 
     }
 
-    public function setCategories(Collection $categories): self
+    public function setCategory(Category $category): self
     {
-        $this->categories = $categories;
+        if (!$this->categories->contains($category)) {
+            $this->categories[] = $category;
+        }
+
         return $this;
     }
+
 
     public function getEditor(): ?Editor 
     {

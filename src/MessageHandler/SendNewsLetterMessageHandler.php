@@ -9,6 +9,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Twig\Environment;
+use App\Service\MailerService;
 
 #[AsMessageHandler]
 class SendNewsLetterMessageHandler
@@ -17,27 +18,17 @@ class SendNewsLetterMessageHandler
         private MailerInterface $mailer,
         private Environment $twig,
         private VideoGameRepository $videoGameRepository,
+       private MailerService $mailerService,
         private UserRepository $userRepository
     ) {}
-
+        
     public function __invoke(SendNewsLetterMessage $message)
     {
-        $videoGames = $this->videoGameRepository->findBy([], ['releaseDate' => 'DESC'], 5);
-
-        $html = $this->twig->render('email/newsletter.html.twig', [
-            'videoGames' => $videoGames
-        ]);
         $users = $this->userRepository->findUsersBySubcription();
-        foreach($users as $user){
-             $email = (new Email())
-            ->from('newsletter@playcore.com')
-            ->to($user->getEmail())
-            ->subject('Newsletter Gaming')
-            ->text('Bonjour, voici notre dernière newsletter.')
-            ->html($html);
 
-            $this->mailer->send($email);
+        foreach ($users as $user) {
+            $this->mailerService->sendEmail($user->getEmail(),'Next release games','Version texte','email/newsletter2.html.twig');
+            sleep(10);        
         }
-       
     }
 }

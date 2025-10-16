@@ -13,8 +13,8 @@ class CategoryFixtures extends Fixture
         $categories = [
             'RPG' => 'category_rpg',
             'FPS' => 'category_fps',
-            'Action' => 'category_action',      // ajouté, utilisé pour Sekiro
-            'Adventure' => 'category_adventure', // corrigé pour correspondre à 'category_adventure' en lowercase
+            'Action' => 'category_action',
+            'Adventure' => 'category_adventure',
             'Sandbox' => 'category_sandbox',
             'Sports' => 'category_sports',
             'Platformer' => 'category_platformer',

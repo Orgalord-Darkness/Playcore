@@ -9,6 +9,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use App\Entity\VideoGame;
 use App\Entity\Editor;
+use App\Entity\Category;
 use App\EventListener\ExcpetionListener;
 use App\Repository\VideoGameRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,6 +20,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Doctrine\Common\Collections\ArrayCollection;
 
 final class VideoGameController extends AbstractController
 {
@@ -86,7 +88,7 @@ final class VideoGameController extends AbstractController
                             new OA\Property(property: "name", type: "string", example:"Nintendo"),
                             new OA\Property(property: "country", type: "string", example:"Japon")
                         ]
-                    )
+                    ),
                 ]
             )
         )
@@ -107,6 +109,20 @@ final class VideoGameController extends AbstractController
             $videogame->setReleaseDate(new \DateTime($releaseDate));
         }
         
+        $editorJson = $request->request->get('editor');
+        if ($editorJson) {
+            $editorData = json_decode($editorJson, true);
+            $editor = $em->getRepository(Editor::class)->find($editorData['id']);
+            if (!$editor) {
+                $editor = new Editor();
+                $editor->setId($editorData['id']);
+                $editor->setName($editorData['name']);
+                $editor->setCountry($editorData['country']);
+            }
+
+            $videogame->setEditor($editor);
+        }
+
         $coverImage = $request->files->get('coverImageFile');
         if ($coverImage) {
             $originalFilename = pathinfo($coverImage->getClientOriginalName(), PATHINFO_FILENAME);
@@ -119,7 +135,7 @@ final class VideoGameController extends AbstractController
             while (file_exists($directory . '/' . $filename)) {
                 $filename = $originalFilename . '-' . $counter . '.' . $extension;
                 $counter++ ;
-        }
+            }
             try {
                 $coverImage->move(
                     $this->getParameter('cover_image_directory'),
@@ -130,12 +146,6 @@ final class VideoGameController extends AbstractController
                 return new JsonResponse(['error' => 'Impossible d\'enregistrer l\'image'], 500);
             }
         }
-        $editorJson = $request->request->get('editor');
-        if ($editorJson) {
-            $editorData = json_decode($editorJson, true);
-            $editor = $em->getRepository(Editor::class)->find($editorData['id'] ?? null);
-            $videogame->setEditor($editor);
-        }
 
         $em->persist($videogame);
         $em->flush();
@@ -145,8 +155,8 @@ final class VideoGameController extends AbstractController
         $location = $urlGenerator->generate(
             'add_video_game', ['id' => $videogame->getId()],
             UrlGeneratorInterface::ABSOLUTE_URL
-        ); 
-        
+        );
+
         return $this->json($videogame, Response::HTTP_CREATED, ["Location" => $location], ['groups' => 'getVideoGame']);
     }
 
