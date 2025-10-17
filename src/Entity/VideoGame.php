@@ -47,6 +47,7 @@ class VideoGame
     #[ORM\ManyToOne(targetEntity: Editor::class, inversedBy: 'videogames' ,cascade: ['persist'])]
     #[ORM\JoinColumn(name:"editor_id", referencedColumnName:"id")]
     #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
+    #[MaxDepth(1)]
     private ?Editor $editor = null;
 
     #[ORM\Column(length:255, nullable:true)]

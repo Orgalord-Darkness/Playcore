@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use Symfony\Component\Security\Core\Authorization\Attribute\IsGranted;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -34,7 +34,7 @@ final class CategoryController extends AbstractController
 
     #[Route('/api/v1/category/list', methods: ['GET'])]
     #[OA\Tag(name: 'Categories')]
-     #[OA\Parameter(
+    #[OA\Parameter(
         name: 'page',
         in: 'query',
         description: 'Page number for pagination',
@@ -60,6 +60,7 @@ final class CategoryController extends AbstractController
 
     #[Route('/api/v1/category/create', name:'add_category', methods: ['POST'])]
     #[OA\Tag(name: 'Categories')]
+    #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         content: new OA\JsonContent(
             type: 'object',
@@ -95,6 +96,7 @@ final class CategoryController extends AbstractController
 
     #[Route('/api/v1/category/update/{id}', name:"update_category", methods:['PUT'])]
     #[OA\Tag(name: 'Categories')]
+    #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         content: new OA\JsonContent(
             type: 'object',
@@ -128,7 +130,7 @@ final class CategoryController extends AbstractController
     }
 
     #[Route('/api/v1/category/{id}', name:'deleteCategory', methods:['DELETE'])]
-    //#[IsGranted('ROLE_ADMIN', message:'Vous n\'êtes pas autorisé à supprimer un élément')]
+    #[IsGranted('ROLE_ADMIN', message:'Vous n\'êtes pas autorisé à supprimer un élément')]
     #[OA\Tag(name: 'Categories')]
     public function deleteCategory(Category $category, EntityManagerInterface $em, TagAwareCacheInterface $cachePool): JsonResponse
     {

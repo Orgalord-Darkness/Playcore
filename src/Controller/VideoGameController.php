@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Nelmio\ApiDocBundle\Attribute\Model;
@@ -47,6 +48,13 @@ final class VideoGameController extends AbstractController
 
     #[Route('/api/v1/videogame/list', methods: ['GET'])]
     #[OA\Tag(name: 'Video Games')]
+    #[OA\Parameter(
+        name: 'page',
+        in: 'query',
+        description: 'Page number for pagination',
+        required: false,
+        schema: new OA\Schema(type: 'integer', default: 1)
+    )]
     public function listVideoGames(
         VideoGameRepository $repository, 
         Request $request, 
@@ -69,6 +77,7 @@ final class VideoGameController extends AbstractController
 
     #[Route('/api/v1/videogame/create', name:'add_video_game', methods: ['POST'])]
     #[OA\Tag(name: 'Video Games')]
+    #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         required: true,
         content: new OA\MediaType(
@@ -168,6 +177,7 @@ final class VideoGameController extends AbstractController
 
     #[Route('/api/v1/videogame/{id}', name: "update_video_game", methods: ['PUT'])]
     #[OA\Tag(name: 'Video Games')]
+    #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         required: true,
         content: new OA\JsonContent(
@@ -201,7 +211,7 @@ final class VideoGameController extends AbstractController
     public function updateVideoGame(
         Request $request, 
         SerializerInterface $serializer, 
-        VideoGame $updatedVideoGame,
+        VideoGame $currentVideoGame,
         EntityManagerInterface $em, 
         UrlGeneratorInterface $urlGenerator, 
         TagAwareCacheInterface $cachePool
@@ -211,50 +221,47 @@ final class VideoGameController extends AbstractController
                 $request->getContent(),
                 VideoGame::class,
                 'json',
-                [AbstractNormalizer::OBJECT_TO_POPULATE => $updatedVideoGame]
+                [AbstractNormalizer::OBJECT_TO_POPULATE => $currentVideoGame]
             );
+
+            $data = json_decode($request->getContent(),true);
+
+            $editor = $em->getRepository(Editor::class)->find($data['editor']['id']);
+            if (!$editor) {
+                return new JsonResponse(['error' => 'Editor not found'], Response::HTTP_NOT_FOUND);
+            }
+            $updatedVideoGame->setEditor($editor);
+            
+            $category = $em->getRepository(Category::class)->find($data['categories']['id']);
+            if (!$category) {
+                return new JsonResponse(['error' => 'Category not found'], Response::HTTP_NOT_FOUND);
+            }
+            $updatedVideoGame->setCategory($category);
+
+            $em->persist($updatedVideoGame);
+            $em->flush();
+
+            $cachePool->invalidateTags(['videogameCache']);
+
+            $location = $urlGenerator->generate(
+                'update_video_game', 
+                ['id' => $updatedVideoGame->getId()],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
+
+            return $this->json(['status' => 'success'], Response::HTTP_OK, ['Location' => $location]);
+
         } catch (\Throwable $e) {
             return new JsonResponse([
                 'status' => 'error',
-                'message' => 'Erreur lors de la désérialisation : ' . $e->getMessage()
-            ], Response::HTTP_BAD_REQUEST);
+                'message' => 'Erreur : ' . $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $editorJson = json_decode($request->getContent(), true);
-        if ($editorJson) {
-            $editorData = $serializer->deserialize(
-                $editorJson,
-                Editor::class,
-                'json'
-            );
-            $editor = $em->getRepository(Editor::class)->find($editorData['id']);
-            new JsonResponse(['editor' => $editor], Response::HTTP_BAD_REQUEST );
-            $updatedVideoGame->setEditor($editor);
-        }
-
-        $category = $request->request->get('categories'); 
-        if ($category) {
-            $category = json_decode($category, true);
-            $category_get = $em->getRepository(Category::class)->find($category['id']);
-            $updatedVideoGame->setCategory($category_get);
-        }
-
-        $em->persist($updatedVideoGame);
-        $em->flush();
-
-        $cachePool->invalidateTags(['videogameCache']);
-
-        $location = $urlGenerator->generate(
-            'update_video_game', 
-            ['id' => $updatedVideoGame->getId()],
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
-
-        return $this->json(['status' => 'success'], Response::HTTP_OK, ['Location' => $location]);
     }
 
     #[Route('/api/v1/videogame/{id}/cover-image', name: "update_video_game_cover_image", methods: ['POST'])]
     #[OA\Tag(name: 'Video Games')]
+    #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         required: true,
         content: new OA\MediaType(

@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use Symfony\Component\Security\Core\Authorization\Attribute\IsGranted;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -34,6 +34,13 @@ final class EditorController extends AbstractController
 
     #[Route('/api/v1/editor/list', name:"editors", methods: ['GET'])]
     #[OA\Tag(name: 'Editors')]
+     #[OA\Parameter(
+        name: 'page',
+        in: 'query',
+        description: 'Page number for pagination',
+        required: false,
+        schema: new OA\Schema(type: 'integer', default: 1)
+    )]
     public function editors(EditorRepository $repository, 
     Request $request, TagAwareCacheInterface $cachePool){
 
@@ -44,7 +51,7 @@ final class EditorController extends AbstractController
 
         $editors = $cachePool->get($cacheIdentifier, 
             function (ItemInterface $item) use ($repository, $page,$limit){
-                $item->tag('categoryCache');
+                $item->tag('editorCache');
                 return $repository->findAllWithPagination($page,$limit);
             }
         ); 
@@ -54,6 +61,7 @@ final class EditorController extends AbstractController
 
     #[Route('/api/v1/editors/create',name:"add_editor", methods: ['POST'])]
     #[OA\Tag(name: 'Editors')]
+    #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         content: new OA\JsonContent(
             type: 'object',
@@ -90,6 +98,7 @@ final class EditorController extends AbstractController
 
     #[Route('/api/v1/editor/{id}', name:"update_editor", methods:['PUT'])]
     #[OA\Tag(name: 'Editors')]
+    #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         content: new OA\JsonContent(
             type: 'object',
@@ -124,7 +133,7 @@ final class EditorController extends AbstractController
     }
 
     #[Route('/api/v1/editor/{id}', name:'deleteEditor', methods:['DELETE'])]
-    //#[IsGranted('ROLE_ADMIN', message:'Vous n\'êtes pas autorisé à supprimer un élément')]
+    #[IsGranted('ROLE_ADMIN', message:'Vous n\'êtes pas autorisé à supprimer un élément')]
     #[OA\Tag(name: 'Editors')]
     public function deleteEditor(Editor $editor, EntityManagerInterface $em, TagAwareCacheInterface $cachePool): JsonResponse
     {

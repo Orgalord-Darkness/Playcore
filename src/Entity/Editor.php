@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Symfony\Component\Serializer\Annotation\MaxDepth; 
 use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection; 
@@ -17,6 +18,7 @@ class Editor
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[MaxDepth(1)]
     #[Groups(['getEditor', 'createEditor','updateEditor','getVideoGame'])]
     private ?string $name;
 
@@ -25,6 +27,7 @@ class Editor
     private ?string $country;
 
     #[ORM\OneToMany(targetEntity: VideoGame::class, mappedBy:'editor')]
+    #[MaxDepth(1)]
     private Collection $videogames;
     
     public function __construct()

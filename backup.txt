@@ -301,3 +301,105 @@ class MailerService
         $this->mailer->send($email);
     }
 }
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+ // #[Route('/api/v1/videogame/{id}', name: "update_video_game", methods: ['PUT'])]
+    // #[OA\Tag(name: 'Video Games')]
+    // #[OA\RequestBody(
+    //     required: true,
+    //     content: new OA\JsonContent(
+    //         type: "object",
+    //         required: ["title", "releaseDate", "description", "editor", "categories"],
+    //         properties: [
+    //             new OA\Property(property: "title", type: "string", example: "The Witcher 3"),
+    //             new OA\Property(property: "releaseDate", type: "string", format: "date", example: "2015-05-19"),
+    //             new OA\Property(property: "description", type: "string", example: "An open-world RPG game"),
+    //             new OA\Property(
+    //                 property: "editor",
+    //                 type: "object",
+    //                 properties: [
+    //                     new OA\Property(property: "id", type: "integer", example: 1),
+    //                     new OA\Property(property: "name", type: "string", example: "Nintendo"),
+    //                     new OA\Property(property: "country", type: "string", example: "Japon"),
+    //                 ]
+    //             ),
+    //             new OA\Property(property: "categories",
+    //                 type: "object",
+    //                 properties: [
+    //                     new OA\Property(property: "id", type: "integer", example: 1),
+    //                     new OA\Property(property: "name", type: "string", example: "RPG"),
+    //                 ]
+    //             ),
+    //         ]
+    //     )
+    // )]
+    // public function updateVideoGame(
+    //     Request $request, 
+    //     SerializerInterface $serializer, 
+    //     VideoGame $currentVideoGame,
+    //     EntityManagerInterface $em, 
+    //     UrlGeneratorInterface $urlGenerator, 
+    //     TagAwareCacheInterface $cachePool
+    // ): JsonResponse {
+
+    //     // Décoder une seule fois le contenu JSON de la requête
+    //     $data = json_decode($request->getContent(), true);
+
+    //     try {
+    //         // Désérialiser les données dans l'objet VideoGame
+    //         $updatedVideoGame = $serializer->deserialize(
+    //             json_encode($data), // Réencoder les données en JSON pour la désérialisation
+    //             VideoGame::class,
+    //             'json',
+    //             [AbstractNormalizer::OBJECT_TO_POPULATE => $currentVideoGame]
+    //         );
+
+    //         // Gérer l'éditeur
+    //         if (isset($data['editor'])) {
+    //             $editorData = $data['editor'];
+    //             $editor = $em->getRepository(Editor::class)->find($editorData['id']);
+    //             if ($editor) {
+    //                 // Utiliser le setter pour associer l'éditeur à l'objet VideoGame
+    //                 $updatedVideoGame->setEditor($editor);
+    //             } else {
+    //                 return new JsonResponse(['error' => 'Editor not found'], Response::HTTP_NOT_FOUND);
+    //             }
+    //         }
+
+    //         // Gérer les catégories
+    //         if (isset($data['categories'])) {
+    //             $categoryData = $data['categories'];
+    //             $category = $em->getRepository(Category::class)->find($categoryData['id']);
+    //             if ($category) {
+    //                 // Utiliser le setter pour associer la catégorie à l'objet VideoGame
+    //                 $updatedVideoGame->setCategory($category);
+    //             } else {
+    //                 return new JsonResponse(['error' => 'Category not found'], Response::HTTP_NOT_FOUND);
+    //             }
+    //         }
+
+    //         // Sauvegarder les changements dans la base de données
+    //         $em->persist($updatedVideoGame);
+    //         $em->flush();
+
+    //         // Invalider le cache associé
+    //         $cachePool->invalidateTags(['videogameCache']);
+
+    //         // Générer l'URL de l'objet mis à jour
+    //         $location = $urlGenerator->generate(
+    //             'update_video_game', 
+    //             ['id' => $updatedVideoGame->getId()],
+    //             UrlGeneratorInterface::ABSOLUTE_URL
+    //         );
+
+    //         return $this->json(['status' => 'success'], Response::HTTP_OK, ['Location' => $location]);
+            
+    //     } catch (\Throwable $e) {
+    //         // En cas d'erreur, renvoyer une réponse d'erreur
+    //         return new JsonResponse([
+    //             'status' => 'error',
+    //             'message' => 'Erreur lors de la désérialisation : ' . $e->getMessage()
+    //         ], Response::HTTP_BAD_REQUEST);
+    //     }
+    // }

@@ -27,6 +27,13 @@ final class UserController extends AbstractController
 {
     #[Route('/api/v1/user/list', methods: ['GET'])]
     #[OA\Tag(name: 'Users')]
+     #[OA\Parameter(
+        name: 'page',
+        in: 'query',
+        description: 'Page number for pagination',
+        required: false,
+        schema: new OA\Schema(type: 'integer', default: 1)
+    )]
     public function categories(UserRepository $repository, 
     Request $request, TagAwareCacheInterface $cachePool){
 
