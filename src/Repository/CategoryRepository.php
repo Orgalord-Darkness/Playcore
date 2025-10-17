@@ -43,9 +43,16 @@ class CategoryRepository extends ServiceEntityRepository
 
     public function findAllWithPagination($page, $limit): array
     {
+        // $qb = $this->createQueryBuilder('c')
+        // ->setFirstResult(($page - 1) * $limit)
+        // ->setMaxResults($limit);
+
         $qb = $this->createQueryBuilder('c')
-        ->setFirstResult(($page - 1) * $limit)
-        ->setMaxResults($limit);
+        ->select('c', 'vg',)  // Sélectionner Category, VideoGame et la relation de jointure (video_game_category)
+        ->leftJoin('c.videoGames', 'vg')  // Jointure avec VideoGame
+        ->setFirstResult(($page - 1) * $limit)  // Pagination (offset)
+        ->setMaxResults($limit);  // Limiter le nombre de résultats
+
         return $qb->getQuery()->getResult();
     }
 

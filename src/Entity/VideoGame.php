@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\MaxDepth; 
 use Symfony\Component\Serializer\Annotation\Groups; 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -23,6 +24,7 @@ class VideoGame
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "un titre est obligatoire")]
+    #[MaxDepth(1)]
     #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
     private ?string $title = null;
 
@@ -38,10 +40,12 @@ class VideoGame
 
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'videoGames')]
     #[ORM\JoinTable(name: 'video_game_category')]
-    #[Groups(['getVideoGame', 'getCategories', 'createVideoGame', 'updateVideoGame'])]
-    private Collection $categories;
+    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
+    #[MaxDepth(1)]
+    private ?Collection $categories = null;
 
-    #[ORM\ManyToOne(targetEntity: Editor::class, cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: Editor::class, inversedBy: 'videogames' ,cascade: ['persist'])]
+    #[ORM\JoinColumn(name:"editor_id", referencedColumnName:"id")]
     #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
     private ?Editor $editor = null;
 
@@ -123,7 +127,7 @@ class VideoGame
         return $this->editor; 
     }
 
-    public function setEditor(Editor $editor): static 
+    public function setEditor(Editor $editor): self 
     {
         $this->editor = $editor;
 

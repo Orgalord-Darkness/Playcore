@@ -34,6 +34,13 @@ final class CategoryController extends AbstractController
 
     #[Route('/api/v1/category/list', methods: ['GET'])]
     #[OA\Tag(name: 'Categories')]
+     #[OA\Parameter(
+        name: 'page',
+        in: 'query',
+        description: 'Page number for pagination',
+        required: false,
+        schema: new OA\Schema(type: 'integer', default: 1)
+    )]
     public function categories(CategoryRepository $repository, 
     Request $request, TagAwareCacheInterface $cachePool){
 

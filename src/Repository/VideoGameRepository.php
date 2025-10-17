@@ -44,9 +44,17 @@ class VideoGameRepository extends ServiceEntityRepository
     public function findAllWithPagination($page, $limit): array
     {
         $qb = $this->createQueryBuilder('v')
+        ->select('v', 'e', 'c')
+        ->join('v.editor','e')
+        ->join('v.categories', 'c')
+        ->addSelect('e','c')
         ->setFirstResult(($page - 1) * $limit)
         ->setMaxResults($limit);
         return $qb->getQuery()->getResult();
+
+        return $qb->getQuery()->getResult();  // Exécuter la requête et retourner les résultats
+
+
     }
 
     public function create(VideoGame $videoGame): void

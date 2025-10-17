@@ -67,98 +67,217 @@ final class VideoGameController extends AbstractController
         return $this->json($videogames, Response::HTTP_OK, [], ['groups' => 'getVideoGame']);
     }
 
-    #[Route('/api/v1/videogame/create', name:'add_video_game', methods: ['POST'])]
-    #[OA\Tag(name: 'Video Games')]
-    #[OA\RequestBody(
-        required: true,
-        content: new OA\MediaType(
-            mediaType: "multipart/form-data",
-            schema: new OA\Schema(
-                type: "object",
-                required: ["title", "releaseDate", "description", "editor"],
-                properties: [
-                    new OA\Property(property: "title", type: "string", example: "The Witcher 3"),
-                    new OA\Property(property: "releaseDate", type: "string", format: "date", example: "2015-05-19"),
-                    new OA\Property(property: "description", type: "string", example: "An open-world RPG game"),
-                    new OA\Property(property: "coverImageFile", type: "string", format: "binary"),
-                    new OA\Property(property: "editor", 
+    // #[Route('/api/v1/videogame/create', name:'add_video_game', methods: ['POST'])]
+    // #[OA\Tag(name: 'Video Games')]
+    // #[OA\RequestBody(
+    //     required: true,
+    //     content: new OA\MediaType(
+    //         mediaType: "multipart/form-data",
+    //         schema: new OA\Schema(
+    //             type: "object",
+    //             required: ["title", "releaseDate", "description", "editor,categories"],
+    //             properties: [
+    //                 new OA\Property(property: "title", type: "string", example: "The Witcher 3"),
+    //                 new OA\Property(property: "releaseDate", type: "string", format: "date", example: "2015-05-19"),
+    //                 new OA\Property(property: "description", type: "string", example: "An open-world RPG game"),
+    //                 new OA\Property(property: "coverImageFile", type: "string", format: "binary"),
+    //                 new OA\Property(property: "editor", 
+    //                     type: "object", 
+    //                     properties: [
+    //                         new OA\Property(property: "id", type: "integer", example: 1),
+    //                         new OA\Property(property: "name", type: "string", example: "Nintendo"),
+    //                         new OA\Property(property: "country", type: "string", example: "Japon"),
+    //                     ]
+    //                 ),
+    //                 new OA\Property(property: "categories", 
+    //                     type: "object", 
+    //                     properties: [
+    //                         new OA\Property(property: "id", type: "integer", example: 1),
+    //                         new OA\Property(property: "name", type: "string", example: "RPG"),
+    //                     ]
+    //                 ),
+    //             ]
+    //         )
+    //     )
+    // )]
+    // public function createVideoGame(
+    //     Request $request,
+    //     EntityManagerInterface $em, 
+    //     SerializerInterface $serializer,
+    //     UrlGeneratorInterface $urlGenerator,
+    //     TagAwareCacheInterface $cachePool
+    // ): JsonResponse {
+    //     $videogame = new VideoGame();
+    //     $videogame->setTitle($request->request->get('title'));
+    //     $videogame->setDescription($request->request->get('description'));
+
+    //     $releaseDate = $request->get('releaseDate');
+    //     if ($releaseDate) {
+    //         $videogame->setReleaseDate(new \DateTime($releaseDate));
+    //     }
+        
+    //     $editorJson = $request->get('editor');
+    //     if ($editorJson) {
+    //         $editorData = json_decode($editorJson, true);
+    //         $editor = $em->getRepository(Editor::class)->find($editorData['id']);
+    //         $videogame->setEditor($editor);
+    //     }
+
+    //     $coverImage = $request->files->get('coverImageFile');
+    //     if ($coverImage) {
+    //         $originalFilename = pathinfo($coverImage->getClientOriginalName(), PATHINFO_FILENAME);
+    //         $extension = $coverImage->guessExtension();
+    //         $directory = $this->getParameter('cover_image_directory');
+
+    //         $filename = $originalFilename . '.' . $extension;
+    //         $counter = 1;
+            
+    //         while (file_exists($directory . '/' . $filename)) {
+    //             $filename = $originalFilename . '-' . $counter . '.' . $extension;
+    //             $counter++ ;
+    //         }
+    //         try {
+    //             $coverImage->move(
+    //                 $this->getParameter('cover_image_directory'),
+    //                 $filename
+    //             );
+    //             $videogame->setCoverImage($filename);
+    //         } catch (\Exception $e) {
+    //             return new JsonResponse(['error' => 'Impossible d\'enregistrer l\'image'], 500);
+    //         }
+    //     }
+    //     $category = $request->get('categories'); 
+    //     if ($category) {
+    //         $category = json_decode($category, true);
+    //         $category_get = $em->getRepository(Category::class)->find($category['id']);
+    //         $videogame->setCategory($category_get);
+    //     }
+
+    //     $em->persist($videogame);
+    //     $em->flush();
+
+    //     $cachePool->invalidateTags(['videogameCache']);
+
+    //     $location = $urlGenerator->generate(
+    //         'add_video_game', ['id' => $videogame->getId()],
+    //         UrlGeneratorInterface::ABSOLUTE_URL
+    //     );
+
+    //     return $this->json($videogame, Response::HTTP_CREATED, ["Location" => $location], ['groups' => 'getVideoGame']);
+    // }
+
+    #[Route('/api/v1/videogame/create', name: 'add_video_game', methods: ['POST'])]
+#[OA\Tag(name: 'Video Games')]
+#[OA\RequestBody(
+    required: true,
+    content: new OA\MediaType(
+        mediaType: "multipart/form-data",
+        schema: new OA\Schema(
+            type: "object",
+            required: ["title", "releaseDate", "description", "editor", "categories"],  // Corrigé la syntaxe ici
+            properties: [
+                new OA\Property(property: "title", type: "string", example: "The Witcher 3"),
+                new OA\Property(property: "releaseDate", type: "string", format: "date", example: "2015-05-19"),
+                new OA\Property(property: "description", type: "string", example: "An open-world RPG game"),
+                new OA\Property(property: "coverImageFile", type: "string", format: "binary"), // Fichier binaire pour l'image
+                new OA\Property(property: "editor", 
+                    type: "object", 
+                    properties: [
+                        new OA\Property(property: "id", type: "integer", example: 1),
+                        new OA\Property(property: "name", type: "string", example: "Nintendo"),
+                        new OA\Property(property: "country", type: "string", example: "Japon"),
+                    ]
+                ),
+                new OA\Property(property: "categories", 
+                    type: "array",
+                    items: new OA\Items(
                         type: "object", 
                         properties: [
                             new OA\Property(property: "id", type: "integer", example: 1),
-                            new OA\Property(property: "name", type: "string", example:"Nintendo"),
-                            new OA\Property(property: "country", type: "string", example:"Japon")
+                            new OA\Property(property: "name", type: "string", example: "RPG"),
                         ]
-                    ),
-                ]
-            )
+                    )
+                ),
+            ]
         )
-    )]
-    public function createVideoGame(
-        Request $request,
-        EntityManagerInterface $em, 
-        SerializerInterface $serializer,
-        UrlGeneratorInterface $urlGenerator,
-        TagAwareCacheInterface $cachePool
-    ): JsonResponse {
-        $videogame = new VideoGame();
-        $videogame->setTitle($request->request->get('title'));
-        $videogame->setDescription($request->request->get('description'));
+    )
+)]
+public function createVideoGame(
+    Request $request,
+    EntityManagerInterface $em, 
+    SerializerInterface $serializer,
+    UrlGeneratorInterface $urlGenerator,
+    TagAwareCacheInterface $cachePool
+): JsonResponse {
+    $videogame = new VideoGame();
+    $videogame->setTitle($request->request->get('title'));
+    $videogame->setDescription($request->request->get('description'));
 
-        $releaseDate = $request->request->get('releaseDate');
-        if ($releaseDate) {
-            $videogame->setReleaseDate(new \DateTime($releaseDate));
-        }
-        
-        $editorJson = $request->request->get('editor');
-        if ($editorJson) {
-            $editorData = json_decode($editorJson, true);
-            $editor = $em->getRepository(Editor::class)->find($editorData['id']);
-            if (!$editor) {
-                $editor = new Editor();
-                $editor->setId($editorData['id']);
-                $editor->setName($editorData['name']);
-                $editor->setCountry($editorData['country']);
-            }
-
-            $videogame->setEditor($editor);
-        }
-
-        $coverImage = $request->files->get('coverImageFile');
-        if ($coverImage) {
-            $originalFilename = pathinfo($coverImage->getClientOriginalName(), PATHINFO_FILENAME);
-            $extension = $coverImage->guessExtension();
-            $directory = $this->getParameter('cover_image_directory');
-
-            $filename = $originalFilename . '.' . $extension;
-            $counter = 1;
-            
-            while (file_exists($directory . '/' . $filename)) {
-                $filename = $originalFilename . '-' . $counter . '.' . $extension;
-                $counter++ ;
-            }
-            try {
-                $coverImage->move(
-                    $this->getParameter('cover_image_directory'),
-                    $filename
-                );
-                $videogame->setCoverImage($filename);
-            } catch (\Exception $e) {
-                return new JsonResponse(['error' => 'Impossible d\'enregistrer l\'image'], 500);
-            }
-        }
-
-        $em->persist($videogame);
-        $em->flush();
-
-        $cachePool->invalidateTags(['videogameCache']);
-
-        $location = $urlGenerator->generate(
-            'add_video_game', ['id' => $videogame->getId()],
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
-
-        return $this->json($videogame, Response::HTTP_CREATED, ["Location" => $location], ['groups' => 'getVideoGame']);
+    // Gestion de la date de sortie
+    $releaseDate = $request->get('releaseDate');
+    if ($releaseDate) {
+        $videogame->setReleaseDate(new \DateTime($releaseDate));
     }
+
+    // Gestion de l'éditeur
+    $editorJson = $request->get('editor');
+    if ($editorJson) {
+        $editorData = json_decode($editorJson, true);
+        $editor = $em->getRepository(Editor::class)->find($editorData['id']);
+        $videogame->setEditor($editor);
+    }
+
+    // Gestion de l'image de couverture
+    $coverImage = $request->files->get('coverImageFile');
+    if ($coverImage) {
+        $originalFilename = pathinfo($coverImage->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $coverImage->guessExtension();
+        $directory = $this->getParameter('cover_image_directory');
+
+        $filename = $originalFilename . '.' . $extension;
+        $counter = 1;
+        
+        while (file_exists($directory . '/' . $filename)) {
+            $filename = $originalFilename . '-' . $counter . '.' . $extension;
+            $counter++ ;
+        }
+        try {
+            $coverImage->move(
+                $this->getParameter('cover_image_directory'),
+                $filename
+            );
+            $videogame->setCoverImage($filename);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Impossible d\'enregistrer l\'image'], 500);
+        }
+    }
+
+    // Gestion des catégories (désactivé pour l'instant)
+    $categoriesJson = $request->get('categories');  // Gérer les catégories
+    if ($categoriesJson) {
+        $categoriesData = json_decode($categoriesJson, true);
+        foreach ($categoriesData as $categoryData) {
+            $category = $em->getRepository(Category::class)->find($categoryData['id']);
+            if ($category) {
+                $videogame->setCategory($category);
+            }
+        }
+    }
+
+    $em->persist($videogame);
+    $em->flush();
+
+    // Invalidating cache
+    $cachePool->invalidateTags(['videogameCache']);
+
+    $location = $urlGenerator->generate(
+        'add_video_game', ['id' => $videogame->getId()],
+        UrlGeneratorInterface::ABSOLUTE_URL
+    );
+
+    return $this->json($videogame, Response::HTTP_CREATED, ["Location" => $location], ['groups' => 'getVideoGame']);
+}
+
 
     #[Route('/api/v1/videogame/{id}', name: "update_video_game", methods: ['PUT'])]
     #[OA\Tag(name: 'Video Games')]
@@ -177,8 +296,8 @@ final class VideoGameController extends AbstractController
                     type: "object",
                     properties: [
                         new OA\Property(property: "id", type: "integer", example: 1),
-                        new OA\Property(property: "name", type: "string", example:"Nintendo"),
-                        new OA\Property(property: "country", type: "string", example:"Japon")
+                        new OA\Property(property: "name", type: "string", example: "Nintendo"),
+                        new OA\Property(property: "country", type: "string", example: "Japon"),
                     ]
                 )
             ]
@@ -204,6 +323,18 @@ final class VideoGameController extends AbstractController
                 'status' => 'error',
                 'message' => 'Erreur lors de la désérialisation : ' . $e->getMessage()
             ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $editorJson = $request->request->get('editor');
+        if ($editorJson) {
+            $editorData = $serializer->deserialize(
+                $editorJson,
+                Editor::class,
+                'json'
+            );
+            $editor = $em->getRepository(Editor::class)->find($editorData['id']);
+            new JsonResponse(['editor' => $editor], Response::HTTP_BAD_REQUEST );
+            $updatedVideoGame->setEditor($editor);
         }
 
         $em->persist($updatedVideoGame);
