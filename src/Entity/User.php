@@ -17,15 +17,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Assert\Type(type: 'integer', message: 'L\'ID doit être un entier.')]
     private ?int $id = null;
 
     #[Groups(['getUser', 'createUser', 'updateUser'])]
     #[Assert\NotBlank(groups: ['default', 'create'])]
     #[ORM\Column]
+    #[Assert\NotBlank(groups: ['Default', 'create'], message: 'Le nom d\'utilisateur ne peut pas être vide.')]
+    #[Assert\Type(type: 'string', message: 'Le nom d\'utilisateur doit être une chaîne.')]
     public string $username;
 
     #[Groups(['getUser', 'createUser', 'updateUser'])]
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: 'L\'email ne peut pas être vide.')]
+    #[Assert\Email(message: 'L\'adresse email "{{ value }}" n\'est pas valide.')]
+    #[Assert\Type(type: 'string', message: 'L\'email doit être une chaîne.')]
     private ?string $email = null;
 
     /**
@@ -33,6 +39,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[Groups(['getUser', 'createUser', 'updateUser'])]
     #[ORM\Column]
+    #[Assert\Type(type: 'array', message: 'Les rôles doivent être un tableau.')]
+    #[Assert\All([
+        new Assert\Type(type: 'string', message: 'Chaque rôle doit être une chaîne.')
+    ])]
     private array $roles = [];
 
     /**
@@ -40,6 +50,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     #[Groups(['getUser', 'createUser', 'updateUser'])]
+    #[Assert\NotBlank(message: 'Le mot de passe est requis.')]
+    #[Assert\Type(type: 'string', message: 'Le mot de passe doit être une chaîne.')]
     private ?string $password = null;
 
     /**
@@ -47,6 +59,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column(type: 'boolean')]
     #[Groups(['getUser', 'createUser', 'updateUser'])]
+    #[Assert\Type(type: 'bool', message: 'La souscription à la newsletter doit être un booléen.')]
     private ?bool $subcription_to_newsletter = false;
 
     public function getId(): ?int

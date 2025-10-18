@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\Common\Collections\ArrayCollection; 
@@ -16,15 +17,28 @@ class Category
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Assert\Type(type: 'integer', message: 'L\'ID doit être un entier.')]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['getCategory', 'createCategory', 'updateCategory','createVideoGame','updateVideoGame'])]
+    #[Assert\NotBlank(message: "Le nom ne peut pas être vide.")]
+    #[Assert\Type(type: 'string', message: 'Le nom doit être une chaîne de caractères.')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: "Le nom ne peut pas dépasser {{ limit }} caractères."
+    )]
     #[MaxDepth(1)]
     private ?string $name = null;
 
     #[ORM\ManyToMany(targetEntity: VideoGame::class, mappedBy: 'categories')]
     #[MaxDepth(1)]
+     #[MaxDepth(1)]
+    #[Assert\Type(
+        type: Collection::class,
+        message: 'La propriété videoGames doit être une collection.'
+    )]
+    #[Assert\Valid]
     private Collection $videoGames;
 
     public function __construct()

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\MaxDepth; 
 use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -15,15 +16,28 @@ class Editor
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Assert\Type(type: 'integer', message: 'L\'ID doit être un entier.')]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[MaxDepth(1)]
     #[Groups(['getEditor', 'createEditor','updateEditor','getVideoGame'])]
+    #[Assert\NotBlank(message: "Le nom ne peut pas être vide.")]
+    #[Assert\Type(type: 'string', message: 'Le nom doit être une chaîne de caractères.')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: "Le nom ne peut pas dépasser {{ limit }} caractères."
+    )]
     private ?string $name;
 
     #[ORM\Column(length: 255)]
     #[Groups(['getEditor', 'createEditor','updateEditor'])]
+    #[Assert\NotBlank(message: "Le pays ne peut pas être vide.")]
+    #[Assert\Type(type: 'string', message: 'Le pays doit être une chaîne de caractères.')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: "Le nom du pays ne peut pas dépasser {{ limit }} caractères."
+    )]
     private ?string $country;
 
     #[ORM\OneToMany(targetEntity: VideoGame::class, mappedBy:'editor')]
