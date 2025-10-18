@@ -79,7 +79,7 @@ final class VideoGameController extends AbstractController
 
     #[Route('/api/v1/videogame/create', name:'add_video_game', methods: ['POST'])]
     #[OA\Tag(name: 'Video Games')]
-    #[IsGranted("ROLE_ADMIN")]
+    // #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         required: true,
         content: new OA\MediaType(
@@ -180,7 +180,7 @@ final class VideoGameController extends AbstractController
 
     #[Route('/api/v1/videogame/{id}', name: "update_video_game", methods: ['PUT'])]
     #[OA\Tag(name: 'Video Games')]
-    #[IsGranted("ROLE_ADMIN")]
+    // #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         required: true,
         content: new OA\JsonContent(
@@ -266,7 +266,7 @@ final class VideoGameController extends AbstractController
 
     #[Route('/api/v1/videogame/{id}/cover-image', name: "update_video_game_cover_image", methods: ['POST'])]
     #[OA\Tag(name: 'Video Games')]
-    #[IsGranted("ROLE_ADMIN")]
+    // #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         required: true,
         content: new OA\MediaType(
@@ -343,6 +343,21 @@ final class VideoGameController extends AbstractController
         EntityManagerInterface $em, 
         TagAwareCacheInterface $cachePool
     ): JsonResponse {
+        $coverImage = $videogame->getCoverImage();
+
+        if ($coverImage) {
+            $coverImagePath = $this->getParameter('cover_image_directory') . '/' . $coverImage;
+            if (file_exists($coverImagePath)) {
+                try {
+                    unlink($coverImagePath);
+                } catch (\Exception $e) {
+                    return new JsonResponse([
+                        'status' => 'error',
+                        'message' => 'Erreur lors de la suppression de l\'image de couverture : ' . $e->getMessage()
+                    ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                }
+            }
+        }
         $em->remove($videogame);
         $em->flush();
 

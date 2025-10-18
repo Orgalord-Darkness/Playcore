@@ -32,13 +32,13 @@ class Category
     private ?string $name = null;
 
     #[ORM\ManyToMany(targetEntity: VideoGame::class, mappedBy: 'categories')]
-    #[MaxDepth(1)]
-     #[MaxDepth(1)]
     #[Assert\Type(
         type: Collection::class,
         message: 'La propriété videoGames doit être une collection.'
     )]
     #[Assert\Valid]
+    #[MaxDepth(1)]
+    #[Groups(['getCategory', 'createCategory', 'updateCategory','createVideoGame','updateVideoGame'])]
     private Collection $videoGames;
 
     public function __construct()
