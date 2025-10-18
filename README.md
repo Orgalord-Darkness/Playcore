@@ -1,134 +1,178 @@
-## 🎮 Présentation de l’application
+# 🎮 Playcore — Application Symfony de gestion de jeux vidéo
+## 🧩 Présentation du projet
 
-**Playcore** est une application backend développée avec [Symfony](https://symfony.com/) qui expose une API RESTful pour la gestion d’une base de données de jeux vidéo.
+Playcore est une application développée avec Symfony, utilisant NelmioApiDoc / Swagger pour documenter et tester ses routes API.
+C’est une application de gestion de jeux vidéo sans template d’affichage, reposant sur une API REST complète.
 
-🧩 Elle repose sur les principes suivants :
+L’application permet :
 
-- 📦 Architecture sans interface graphique : toutes les interactions se font via des appels API.
-- 📘 Documentation interactive des routes grâce à [Swagger via NelmioApiDocBundle](https://symfony.com/bundles/NelmioApiDocBundle/current/index.html).
-- 🛠️ Tests et exploration des endpoints directement depuis l’interface Swagger.
+🎮 De gérer les entités jeux vidéo, éditeurs, catégories et utilisateurs.
 
-Cette approche permet une intégration facile avec des frontends ou des services tiers, tout en assurant une structure claire et sécurisée côté serveur.
+📅 D’envoyer automatiquement une newsletter chaque lundi à 8h30, présentant les jeux à venir dans les 7 prochains jours.
 
-## 🚀 Fonctionnalités principales
+🖼️ D’afficher les images de couverture dans les e-mails grâce à l’intégration via CID (Content-ID).
 
-Playcore offre un ensemble de fonctionnalités robustes pour la gestion d’une base de données de jeux vidéo via une API Symfony RESTful :
+## ⚙️ Fonctionnement général
+### 🧱 Entités principales
 
-- 📚 **Gestion de 4 entités principales** :
-  - `VideoGame`
-  - `Editor`
-  - `Category`
-  - `User`
+VideoGame → id, title, releaseDate, description, coverImage, editor_id
 
-- 🔄 **CRUD complet** pour chaque entité via des routes API documentées avec [NelmioApiDocBundle](https://symfony.com/bundles/NelmioApiDocBundle/current/index.html)
+Un éditeur
 
-- 🔐 **Sécurité par JWT** ([LexikJWTAuthenticationBundle](https://github.com/lexik/LexikJWTAuthenticationBundle)) :
-  - Les routes `create`, `update`, `delete` sont accessibles uniquement aux administrateurs
-  - Les utilisateurs non authentifiés ou non autorisés reçoivent une erreur
+Plusieurs catégories
 
-- 📩 **Newsletter hebdomadaire** :
-  - Envoi automatique tous les lundis à 8h30
-  - Contient les jeux vidéo à venir dans les 7 prochains jours
+Editor → id, name, country
 
-- 🖼️ **Images de couverture intégrées dans les mails** :
-  - Utilisation de CID (Content-ID) avec `embedFromPath()` pour garantir l’affichage dans les clients mail
-  - Les images sont jointes de manière invisible et référencées dans le HTML via `<img src="cid:...">`
+Plusieurs jeux vidéo
 
-- 📅 **Scheduler intégré** :
-  - Planification de l’envoi des newsletters via une commande Symfony
+Category → id, name
 
----
+Plusieurs jeux vidéo (relation N:N via la table pivot video_game_category)
 
-## 🧩 Structure des entités
+User → id, username, email, password, roles, subscribe_to_newsletter
 
-| Entité     | Attributs principaux                                                  |
-|------------|------------------------------------------------------------------------|
-| VideoGame  | id, title, releaseDate, description, coverImage, editor_id            |
-| Editor     | id, name, country                                                     |
-| Category   | id, name                                                              |
-| User       | id, username, email, password, roles, subscribe_to_newsletter         |
+Peut être abonné à la newsletter
 
----
+### 👨‍💻 Contrôleurs principaux
 
-## 🔗 Relations entre entités
+VideoGameController → CRUD des jeux vidéo.
 
-- Un `VideoGame` est toujours associé à un `Editor`
-- Un `VideoGame` peut appartenir à plusieurs `Categories` (relation N:N via la table pivot `video_game_category`)
-- Une `Category` peut regrouper plusieurs `VideoGames`
+EditorController → CRUD des éditeurs.
 
-## 📬 Fonctionnement du système de newsletter
+CategoryController → CRUD des catégories.
 
-Playcore intègre un système de newsletter automatisé destiné aux utilisateurs ayant activé l’option `subscribe_to_newsletter = true`.
+UserController → CRUD des utilisateurs.
 
-### 🕒 Fréquence d’envoi
+MailerController → Prévisualisation du mail newsletter2.html.twig.
 
-- 📅 Tous les lundis à **8h30**
-- 📦 Contenu du mail :
-  - Liste des jeux vidéo à venir dans les **7 prochains jours**
-  - Images de couverture intégrées via **CID (Content-ID)** avec `embedFromPath()` pour garantir leur affichage dans les clients mail
-  - Template stylisé directement avec des balises `<style>` dans le fichier Twig
-
-## 🛠️ Commandes disponibles
-
-L’application propose deux commandes Symfony pour gérer l’envoi des mails :
-
-```bash
-php bin/console app:send-mail
-# Envoie un mail simple sans image de couverture
-
-php bin/console app:send-newsletter
-# Envoie la newsletter hebdomadaire avec les images de couverture intégrées via CID
+AuthController → Gestion du login et génération du token JWT.
 
 
-## 🛠️ Difficultés rencontrées
+### 🚀 API & Swagger
 
-### 📁 Gestion des images de couverture
+Toutes les routes CRUD sont exposées via Swagger (NelmioApiDocBundle).
 
-L’envoi de fichiers via `multipart/form-data` est incompatible avec la désérialisation automatique dans Symfony.
+Les données des requêtes create et update sont désérialisées (sauf exceptions).
 
-**Solution mise en place :**
+Les routes read, update et delete sont réservées aux administrateurs.
 
-- Pour la création (`create`) :
-  - Utilisation directe des setters dans le contrôleur
+L’authentification utilise LexikJWTAuthenticationBundle (JWT).
 
-- Pour la mise à jour (`update`) :
-  - Séparation en deux routes distinctes :
-    - `updateVideoGame` : pour les données simples désérialisables
-    - `updateVideoGameCoverImage` : pour la mise à jour de l’image
+#### 🔐 Si un utilisateur non admin tente d’accéder à une route protégée, le message « Pas de JWT » est affiché.
 
----
+### 🗓️ Tâches planifiées & newsletter
 
-### 🔁 Relations circulaires
+Un scheduler envoie chaque lundi à 8h30 un e-mail contenant :
 
-Des problèmes de sérialisation liés à des boucles infinies ont été rencontrés lors de l’exposition des entités liées.
+La liste des jeux vidéo à venir dans les 7 prochains jours.
 
-**Solution :**
+Les images de couverture intégrées via CID.
 
-- Utilisation de l’attribut [`MaxDepth`](https://symfony.com/doc/current/serializer.html#serializer-handling-serialization-depth) dans le Serializer Symfony pour limiter la profondeur de sérialisation.
+Ces e-mails sont envoyés uniquement aux utilisateurs ayant subscribe_to_newsletter = true.
 
----
+Deux commandes console ont été créées :
 
-### 📄 Pagination
+php bin/console app:send-mail → Envoi d’un mail sans images.
 
-La récupération des entités se fait via une méthode personnalisée `findAllWithPagination` dans les repositories.
-
-- Le numéro de page est passé dynamiquement en paramètre dans la route
-- Permet une navigation fluide et optimisée des résultats
+php bin/console app:send-newsletter → Envoi de la newsletter complète avec images.
 
 
-## 📚 Documentation utile
+🧰 Gestion des fichiers uploadés
+📸 Méthode getClientOriginalName()
 
-- [Sérialiseur Symfony – MaxDepth](https://symfony.com/doc/current/serializer.html#serializer-handling-serialization-depth)  
-  Pour limiter les boucles de sérialisation dans les relations entitées imbriquées.
+$coverImage est une instance de UploadedFile.
 
-- [Sensio – Sécurité avec @IsGranted](https://symfony.com/bundles/SensioFrameworkExtraBundle/current/annotations/security.html#isgranted)  
-  Pour restreindre l’accès aux routes selon les rôles utilisateur avec des annotations.
+getClientOriginalName() retourne le nom original du fichier envoyé (ex. elden-ring.jpg).
 
-- [Symfony Mailer](https://symfony.com/doc/current/mailer.html#creating-sending-messages)  
-  Pour créer et envoyer des e-mails, y compris avec des pièces jointes et des templates Twig.
+⚠️ Ce nom peut contenir des caractères spéciaux — il ne doit jamais être utilisé tel quel pour enregistrer le fichier.
 
-- [NelmioApiDocBundle (Swagger)](https://symfony.com/bundles/NelmioApiDocBundle/current/index.html)  
-  Pour documenter automatiquement les routes de l’API avec Swagger.
+🪶 Fonction pathinfo(..., PATHINFO_FILENAME)
 
-- [LexikJWTAuthenticationBundle](https://github.com/lexik/LexikJWTAuthenticationBundle)  
-  Pour sécuriser l’API avec des tokens JWT.
+Cette fonction PHP retourne le nom du fichier sans extension.
+Exemple : pathinfo('elden-ring.jpg', PATHINFO_FILENAME) renvoie elden-ring.
+
+## 🧠 Difficultés rencontrées
+### 📂 Upload d’images (coverImage)
+
+Le Content-Type multipart/form-data est incompatible avec la désérialisation automatique de Symfony.
+
+✅ Solutions mises en place :
+
+Pour create → utilisation directe des setters.
+
+Pour update → création de deux routes distinctes :
+
+updateVideoGame → pour les données simples.
+
+updateVideoGameCoverImage → pour l’image uniquement.
+
+### ✉️ Gestion des images dans les e-mails
+Les images ne pouvaient pas être affiché dans le mail avec un simple src puisque le mail ne fait pas parti de l'application 
+
+#### 🧠 Solution : Implémentation des images en pièces jointes cachées et Content ID (CID)  
+
+📎 Image intégrée via CID
+Exemple : <img src="cid:mon_image">
+
+Le CID agit comme un identifiant unique pour une image mise en pièce jointe cachée.
+L’image est envoyée en pièce jointe cachée, puis affichée dans le corps du mail via son identifiant donc el CID.
+
+#### 🔍 Fonctionnement du code d’intégration
+
+Récupère le chemin du dossier des images de couverture :
+$coverImageDir = $this->params->get('cover_image_directory');
+
+Pour chaque jeu, récupère le fichier image et construit son chemin complet.
+
+Si l’image existe :
+
+Génère un CID unique ($cid = uniqid('vg_', true)),
+
+Intègre l’image au mail avec embedFromPath(),
+
+Associe le CID à l’ID du jeu pour le template.
+
+➡️ Résultat : Les images s’affichent correctement dans les e-mails, même en dehors de l’application.
+
+
+### 🔁 Relations circulaires & pagination
+
+Une méthode findAllWithPagination() dans chaque repository gère la pagination.
+
+L’utilisateur peut changer la page via un paramètre dans la route.
+
+Des erreurs de relations circulaires ont été résolues grâce à l’annotation :
+@MaxDepth(1)
+permettant de limiter les boucles de sérialisation.
+
+
+### 📚 Documentations qui m'ont été utile
+
+📘 Symfony Serializer (MaxDepth)
+➡️ https://symfony.com/doc/current/serializer.html#serializer_handling-serialization-depth
+
+🔒 Sécurité avec annotations IsGranted
+➡️ https://symfony.com/bundles/SensioFrameworkExtraBundle/current/annotations/security.html#isgranted
+
+📤 Symfony Mailer
+➡️ https://symfony.com/doc/current/mailer.html#creating-sending-messages
+
+## 🧾 Conclusion
+
+Playcore est une application Symfony complète alliant :
+
+#### 🧩 Gestion CRUD via API.
+
+#### 🔐 Authentification sécurisée par JWT.
+
+#### ✉️ Automatisation d’e-mails enrichis (images intégrées via CID).
+
+#### ⚙️ Pagination et sérialisation optimisées.
+
+Ce projet a permis d’approfondir :
+
+L’utilisation du Mailer de Symfony.
+
+La gestion avancée des fichiers uploadés.
+
+Les relations entre entités et la prévention des boucles de sérialisation.
