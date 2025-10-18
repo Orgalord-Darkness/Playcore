@@ -146,7 +146,7 @@ Des erreurs de relations circulaires ont été résolues grâce à l’annotatio
 permettant de limiter les boucles de sérialisation.
 
 
-### 📚 Documentations qui m'ont été utile
+## 📚 Documentations qui m'ont été utile
 
 📘 Symfony Serializer (MaxDepth)
 ➡️ https://symfony.com/doc/current/serializer.html#serializer_handling-serialization-depth
