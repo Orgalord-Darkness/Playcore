@@ -12,6 +12,8 @@ use App\Entity\VideoGame;
 use App\Entity\Editor;
 use App\Entity\Category;
 use App\EventListener\ExcpetionListener;
+use App\Repository\EditorRepository;
+use App\Repository\CategoryRepository;
 use App\Repository\VideoGameRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -112,9 +114,10 @@ final class VideoGameController extends AbstractController
     public function createVideoGame(
         Request $request,
         EntityManagerInterface $em, 
-        SerializerInterface $serializer,
         UrlGeneratorInterface $urlGenerator,
-        TagAwareCacheInterface $cachePool
+        TagAwareCacheInterface $cachePool,
+        EditorRepository $editor_repository, 
+        CategoryRepository $category_repository, 
     ): JsonResponse {
         $videogame = new VideoGame();
         $videogame->setTitle($request->request->get('title'));
@@ -128,7 +131,7 @@ final class VideoGameController extends AbstractController
         $editorJson = $request->get('editor');
         if ($editorJson) {
             $editorData = json_decode($editorJson, true);
-            $editor = $em->getRepository(Editor::class)->find($editorData['id']);
+            $editor = $editor_repository->find($editorData['id']);
             $videogame->setEditor($editor);
         }
 
@@ -158,7 +161,7 @@ final class VideoGameController extends AbstractController
         $category = $request->get('categories'); 
         if ($category) {
             $category = json_decode($category, true);
-            $category_get = $em->getRepository(Category::class)->find($category['id']);
+            $category_get = $category_repository->find($category['id']);
             $videogame->setCategory($category_get);
         }
 
@@ -214,7 +217,9 @@ final class VideoGameController extends AbstractController
         VideoGame $currentVideoGame,
         EntityManagerInterface $em, 
         UrlGeneratorInterface $urlGenerator, 
-        TagAwareCacheInterface $cachePool
+        TagAwareCacheInterface $cachePool,
+        EditorRepository $editor_repository, 
+        CategoryRepository $category_repository,
     ): JsonResponse {
         try {
             $updatedVideoGame = $serializer->deserialize(
@@ -226,13 +231,13 @@ final class VideoGameController extends AbstractController
 
             $data = json_decode($request->getContent(),true);
 
-            $editor = $em->getRepository(Editor::class)->find($data['editor']['id']);
+            $editor = $editor_repository->find($data['editor']['id']);
             if (!$editor) {
                 return new JsonResponse(['error' => 'Editor not found'], Response::HTTP_NOT_FOUND);
             }
             $updatedVideoGame->setEditor($editor);
             
-            $category = $em->getRepository(Category::class)->find($data['categories']['id']);
+            $category = $category_repository->find($data['categories']['id']);
             if (!$category) {
                 return new JsonResponse(['error' => 'Category not found'], Response::HTTP_NOT_FOUND);
             }

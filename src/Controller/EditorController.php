@@ -34,7 +34,7 @@ final class EditorController extends AbstractController
 
     #[Route('/api/v1/editor/list', name:"editors", methods: ['GET'])]
     #[OA\Tag(name: 'Editors')]
-     #[OA\Parameter(
+    #[OA\Parameter(
         name: 'page',
         in: 'query',
         description: 'Page number for pagination',

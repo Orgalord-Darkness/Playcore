@@ -68,7 +68,6 @@ final class UserController extends AbstractController
         )
     )]
     public function createUser(
-        UserRepository $repository, 
         Request $request,
         EntityManagerInterface $em, 
         SerializerInterface $serializer,

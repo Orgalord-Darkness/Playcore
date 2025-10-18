@@ -70,8 +70,7 @@ final class CategoryController extends AbstractController
             ]
         )
     )]
-    public function createCategory(
-        CategoryRepository $repository, 
+    public function createCategory( 
         Request $request,
         EntityManagerInterface $em, 
         SerializerInterface $serializer,

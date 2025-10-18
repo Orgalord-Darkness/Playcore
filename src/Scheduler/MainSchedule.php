@@ -18,8 +18,8 @@ final class MainSchedule implements ScheduleProviderInterface
     {
         return (new Schedule())
             ->add(
-                // RecurringMessage::cron('30 8 * * 1', new SendNewsLetterMessage())
-                RecurringMessage::cron('*/1 * * * *', new SendNewsLetterMessage())
+                RecurringMessage::cron('30 8 * * 1', new SendNewsLetterMessage())
+                // RecurringMessage::cron('*/1 * * * *', new SendNewsLetterMessage())
             )
             ->stateful($this->cache);
     }
