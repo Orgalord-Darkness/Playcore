@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTManager;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use OpenApi\Attributes as OA;
 
 class AuthController
@@ -46,6 +47,27 @@ class AuthController
     {
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
+
+    #[Route('/api/test-login', methods: ['POST'])]
+    #[OA\Tag(name: 'Auth')]
+    public function testLogin(Request $request, UserRepository $userRepository, UserPasswordHasherInterface $hasher): JsonResponse
+    {
+        $email = "admin@example.com";
+        $password = "adminpass";
+
+        $user = $userRepository->findOneBy(['email' => $email]);
+
+        if (!$user) {
+            return new JsonResponse(['error' => 'Utilisateur introuvable'], 404);
+        }
+
+        if (!$hasher->isPasswordValid($user, $password)) {
+            return new JsonResponse(['error' => 'Mot de passe invalide'], 401);
+        }
+
+        return new JsonResponse(['message' => 'Connexion réussie']);
+    }
+
 
 
 
