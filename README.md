@@ -144,7 +144,6 @@ L’utilisateur peut changer la page via un paramètre dans la route.
 Des erreurs de relations circulaires ont été résolues grâce à l’annotation :
 @MaxDepth(1)
 permettant de limiter les boucles de sérialisation.
-#### Problème: lors d'une première utilisation des routes get entity erreur de références circulaires malgré les groupes de sérialisations et les MaxDepth mais le problème n'apparaît pas sur les utilisations suivantes
 
 
 ## 📚 Documentations qui m'ont été utile
