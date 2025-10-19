@@ -60,7 +60,7 @@ final class CategoryController extends AbstractController
 
     #[Route('/api/v1/category/create', name:'add_category', methods: ['POST'])]
     #[OA\Tag(name: 'Categories')]
-    // #[IsGranted("ROLE_ADMIN")]
+    #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         content: new OA\JsonContent(
             type: 'object',
@@ -95,7 +95,7 @@ final class CategoryController extends AbstractController
 
     #[Route('/api/v1/category/update/{id}', name:"update_category", methods:['PUT'])]
     #[OA\Tag(name: 'Categories')]
-    // #[IsGranted("ROLE_ADMIN")]
+    #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         content: new OA\JsonContent(
             type: 'object',
@@ -129,7 +129,7 @@ final class CategoryController extends AbstractController
     }
 
     #[Route('/api/v1/category/{id}', name:'deleteCategory', methods:['DELETE'])]
-    // #[IsGranted('ROLE_ADMIN', message:'Vous n\'êtes pas autorisé à supprimer un élément')]
+    #[IsGranted('ROLE_ADMIN', message:'Vous n\'êtes pas autorisé à supprimer un élément')]
     #[OA\Tag(name: 'Categories')]
     public function deleteCategory(Category $category, EntityManagerInterface $em, TagAwareCacheInterface $cachePool): JsonResponse
     {

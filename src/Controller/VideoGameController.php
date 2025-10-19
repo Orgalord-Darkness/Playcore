@@ -79,7 +79,7 @@ final class VideoGameController extends AbstractController
 
     #[Route('/api/v1/videogame/create', name:'add_video_game', methods: ['POST'])]
     #[OA\Tag(name: 'Video Games')]
-    // #[IsGranted("ROLE_ADMIN")]
+    #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         required: true,
         content: new OA\MediaType(
@@ -180,7 +180,7 @@ final class VideoGameController extends AbstractController
 
     #[Route('/api/v1/videogame/{id}', name: "update_video_game", methods: ['PUT'])]
     #[OA\Tag(name: 'Video Games')]
-    // #[IsGranted("ROLE_ADMIN")]
+    #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         required: true,
         content: new OA\JsonContent(
@@ -266,7 +266,7 @@ final class VideoGameController extends AbstractController
 
     #[Route('/api/v1/videogame/{id}/cover-image', name: "update_video_game_cover_image", methods: ['POST'])]
     #[OA\Tag(name: 'Video Games')]
-    // #[IsGranted("ROLE_ADMIN")]
+    #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         required: true,
         content: new OA\MediaType(
@@ -338,6 +338,7 @@ final class VideoGameController extends AbstractController
 
     #[Route('/api/v1/videogame/{id}', name: 'deleteVideoGame', methods: ['DELETE'])]
     #[OA\Tag(name: 'Video Games')]
+    #[IsGranted("ROLE_ADMIN")]
     public function deleteVideoGame(
         VideoGame $videogame, 
         EntityManagerInterface $em, 
@@ -370,7 +371,6 @@ final class VideoGameController extends AbstractController
     public function previewNewsletter(VideoGameRepository $videoGameRepository): Response
     {
         $videoGames = $videoGameRepository->findBy([], ['releaseDate' => 'DESC'], 5);
-        // dd($videoGames);
 
         return $this->render('email/newsletter.html.twig', [
             'username' => 'Heddy',

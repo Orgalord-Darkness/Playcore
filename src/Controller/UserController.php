@@ -53,7 +53,7 @@ final class UserController extends AbstractController
 
     #[Route('/api/v1/user/create', name: 'add_user',methods: ['POST'])]
     #[OA\Tag(name: 'Users')]
-    // #[IsGranted("ROLE_ADMIN")]
+    #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         content: new OA\JsonContent(
             type: 'object',
@@ -97,7 +97,7 @@ final class UserController extends AbstractController
 
     #[Route('/api/v1/user/update/{id}', name:"update_user", methods:['PUT'])]
     #[OA\Tag(name: 'Users')]
-    // #[IsGranted("ROLE_ADMIN")]
+    #[IsGranted("ROLE_ADMIN")]
     #[OA\RequestBody(
         content: new OA\JsonContent(
             type: 'object',
@@ -145,7 +145,7 @@ final class UserController extends AbstractController
     }
 
     #[Route('/api/v1/user/{id}', name:'deleteUser', methods:['DELETE'])]
-    // #[IsGranted('ROLE_ADMIN', message:'Vous n\'êtes pas autorisé à supprimer un élément')]
+    #[IsGranted('ROLE_ADMIN', message:'Vous n\'êtes pas autorisé à supprimer un élément')]
     #[OA\Tag(name: 'Users')]
     public function deleteUser(User $user, EntityManagerInterface $em, TagAwareCacheInterface $cachePool): JsonResponse
     {

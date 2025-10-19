@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTDecoderInterface;
 use OpenApi\Attributes as OA;
 
 class AuthController
@@ -24,8 +25,8 @@ class AuthController
             type: 'object',
             required: ['email', 'password'],
             properties: [
-                new OA\Property(property: 'email', type: 'string', example: 'admin@example.com'),
-                new OA\Property(property: 'password', type: 'string', example: 'admin123')
+                new OA\Property(property: 'username', type: 'string', example: 'admin'),
+                new OA\Property(property: 'password', type: 'string', example: 'adminpass')
             ]
         )
     )]
@@ -68,7 +69,26 @@ class AuthController
         return new JsonResponse(['message' => 'Connexion réussie']);
     }
 
+    #[Route('/api/test-token', methods:["GET"])]
+    #[OA\Tag(name: 'Auth')]
+    public function testToken(Request $request, JWTManager $jwtManager): JsonResponse
+    {
+        $authHeader = $request->headers->get('Authorization');
 
+        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+            return new JsonResponse(['error' => 'No Bearer token provided'], 400);
+        }
 
+        $token = substr($authHeader, 7); // remove "Bearer "
+
+        try {
+            // parse() est une méthode disponible dans JWTManager depuis la v3
+            $data = $jwtManager->parse($token);
+
+            return new JsonResponse(['token_data' => $data]);
+        } catch (\Throwable $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 401);
+        }
+    }
 
 }
