@@ -100,13 +100,19 @@ final class VideoGameController extends AbstractController
                             new OA\Property(property: "country", type: "string", example: "Japon"),
                         ]
                     ),
-                    new OA\Property(property: "categories", 
-                        type: "object", 
-                        properties: [
-                            new OA\Property(property: "id", type: "integer", example: 1),
-                            new OA\Property(property: "name", type: "string", example: "RPG"),
-                        ]
-                    ),
+                    new OA\Property(
+                        property: "categories",
+                        type: "array",
+                        items: new OA\Items(
+                            type: "object",
+                            properties: [
+                                new OA\Property(property: "id", type: "integer", example: 1),
+                                new OA\Property(property: "name", type: "string", example: "RPG")
+                            ]
+                        )
+                    )
+
+
                 ]
             )
         )
@@ -158,12 +164,21 @@ final class VideoGameController extends AbstractController
                 return new JsonResponse(['error' => 'Impossible d\'enregistrer l\'image'], 500);
             }
         }
-        $category = $request->get('categories'); 
-        if ($category) {
-            $category = json_decode($category, true);
-            $category_get = $category_repository->find($category['id']);
-            $videogame->setCategory($category_get);
+        $categoriesJson = $request->get('categories');
+        if ($categoriesJson) {
+            $categoriesData = json_decode($categoriesJson, true);
+            if (is_array($categoriesData)) {
+                foreach ($categoriesData as $categoryData) {
+                    if (isset($categoryData['id'])) {
+                        $categoryEntity = $category_repository->find($categoryData['id']);
+                        if ($categoryEntity) {
+                            $videogame->setCategory($categoryEntity);
+                        }
+                    }
+                }
+            }
         }
+
 
         $em->persist($videogame);
         $em->flush();
@@ -200,12 +215,16 @@ final class VideoGameController extends AbstractController
                         new OA\Property(property: "country", type: "string", example: "Japon"),
                     ]
                 ),
-                new OA\Property(property: "categories", 
-                    type: "object", 
-                    properties: [
-                        new OA\Property(property: "id", type: "integer", example: 1),
-                        new OA\Property(property: "name", type: "string", example: "RPG"),
-                    ]
+                new OA\Property(
+                    property: "categories",
+                    type: "array",
+                    items: new OA\Items(
+                        type: "object",
+                        properties: [
+                            new OA\Property(property: "id", type: "integer", example: 1),
+                            new OA\Property(property: "name", type: "string", example: "RPG"),
+                        ]
+                    )
                 ),
 
             ]
@@ -237,11 +256,24 @@ final class VideoGameController extends AbstractController
             }
             $updatedVideoGame->setEditor($editor);
             
-            $category = $category_repository->find($data['categories']['id']);
-            if (!$category) {
-                return new JsonResponse(['error' => 'Category not found'], Response::HTTP_NOT_FOUND);
+            if (isset($data['categories']) && is_array($data['categories'])) {
+
+                foreach ($updatedVideoGame->getCategory() as $oldCategory) {
+                    $updatedVideoGame->removeCategory($oldCategory);
+                }
+
+                if (isset($data['categories']) && is_array($data['categories'])) {
+                    foreach ($data['categories'] as $categoryData) {
+                        if (isset($categoryData['id'])) {
+                            $categoryEntity = $category_repository->find($categoryData['id']);
+                            if ($categoryEntity) {
+                                $updatedVideoGame->setCategory($categoryEntity);
+                            }
+                        }
+                    }
+                }
+
             }
-            $updatedVideoGame->setCategory($category);
 
             $em->persist($updatedVideoGame);
             $em->flush();

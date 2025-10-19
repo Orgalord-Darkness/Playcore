@@ -134,6 +134,12 @@ class VideoGame
         return $this;
     }
 
+    public function removeCategory(Category $category): self
+    {
+        $this->categories->removeElement($category);
+
+        return $this;
+    }
 
     public function getEditor(): ?Editor 
     {
