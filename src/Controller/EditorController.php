@@ -21,6 +21,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 final class EditorController extends AbstractController
 {
@@ -93,7 +94,7 @@ final class EditorController extends AbstractController
         ); 
         
         return $this->json($editor, Response::HTTP_CREATED, 
-        ["Location" => $location], ['groups' => 'getEditor']);
+        ["Location" => $location], ['groups' => 'getEditor',AbstractObjectNormalizer::ENABLE_MAX_DEPTH => true]);
     }
 
     #[Route('/api/v1/editor/{id}', name:"update_editor", methods:['PUT'])]

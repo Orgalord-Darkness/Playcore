@@ -38,7 +38,6 @@ class Category
     )]
     #[Assert\Valid]
     #[MaxDepth(1)]
-    #[Groups(['getCategory', 'createCategory', 'updateCategory','createVideoGame','updateVideoGame'])]
     private Collection $videoGames;
 
     public function __construct()

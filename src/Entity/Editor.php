@@ -41,6 +41,7 @@ class Editor
     private ?string $country;
 
     #[ORM\OneToMany(targetEntity: VideoGame::class, mappedBy:'editor')]
+    #[Groups(['getEditor', 'createEditor','updateEditor'])]
     #[MaxDepth(1)]
     private Collection $videogames;
     

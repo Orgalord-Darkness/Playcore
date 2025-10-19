@@ -21,6 +21,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 final class CategoryController extends AbstractController
 {
@@ -55,7 +56,7 @@ final class CategoryController extends AbstractController
                 return $repository->findAllWithPagination($page,$limit);
             }
         ); 
-        return $this->json($categories, Response::HTTP_OK,['groups' => 'getCategory','enable_max_depth' => true]);
+        return $this->json($categories, Response::HTTP_OK,['groups' => 'getCategory',AbstractObjectNormalizer::ENABLE_MAX_DEPTH => true]);
     }
 
     #[Route('/api/v1/category/create', name:'add_category', methods: ['POST'])]

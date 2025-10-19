@@ -27,7 +27,7 @@ final class UserController extends AbstractController
 {
     #[Route('/api/v1/user/list', methods: ['GET'])]
     #[OA\Tag(name: 'Users')]
-     #[OA\Parameter(
+    #[OA\Parameter(
         name: 'page',
         in: 'query',
         description: 'Page number for pagination',
@@ -79,6 +79,12 @@ final class UserController extends AbstractController
 
         $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
         $user->setPassword($hashedPassword);
+
+        $data = json_decode($request->getContent(), true);
+
+        if (array_key_exists('subcription_to_newsletter', $data)) {
+            $user->setSubcription($data['subcription_to_newsletter']);
+        }
 
         $em->persist($user);
         $em->flush();
