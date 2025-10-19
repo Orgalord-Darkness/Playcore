@@ -23,7 +23,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-final class UserController extends AbstractController
+class UserController extends AbstractController
 {
     #[Route('/api/v1/user/list', methods: ['GET'])]
     #[OA\Tag(name: 'Users')]

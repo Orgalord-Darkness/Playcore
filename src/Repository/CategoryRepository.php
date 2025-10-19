@@ -6,52 +6,22 @@ use App\Entity\Category;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Category>
- */
 class CategoryRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Category::class);
     }
-
-    //    /**
-    //     * @return Category[] Returns an array of Category objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Category
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
-
+    
     public function findAllWithPagination($page, $limit): array
     {
-        // $qb = $this->createQueryBuilder('c')
-        // ->setFirstResult(($page - 1) * $limit)
-        // ->setMaxResults($limit);
+        
 
         $qb = $this->createQueryBuilder('c')
-        ->select('c', 'vg',)  // Sélectionner Category, VideoGame et la relation de jointure (video_game_category)
-        ->leftJoin('c.videoGames', 'vg')  // Jointure avec VideoGame
-        ->setFirstResult(($page - 1) * $limit)  // Pagination (offset)
-        ->setMaxResults($limit);  // Limiter le nombre de résultats
+        ->select('c', 'vg',) 
+        ->leftJoin('c.videoGames', 'vg')
+        ->setFirstResult(($page - 1) * $limit)
+        ->setMaxResults($limit);
 
         return $qb->getQuery()->getResult();
     }

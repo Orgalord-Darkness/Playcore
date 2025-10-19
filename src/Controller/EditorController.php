@@ -23,7 +23,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
-final class EditorController extends AbstractController
+class EditorController extends AbstractController
 {
     #[Route('/editor', name: 'app_editor')]
     public function index(): Response

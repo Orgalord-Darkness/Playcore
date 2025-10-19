@@ -25,7 +25,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 
-final class VideoGameController extends AbstractController
+class VideoGameController extends AbstractController
 {
     #[Route('/video/game', name: 'app_video_game')]
     public function index(): JsonResponse

@@ -49,13 +49,13 @@ class VideoGame
     #[ORM\JoinTable(name: 'video_game_category')]
     #[Assert\Type(type: Collection::class, message: 'Les catégories doivent être une collection.')]
     #[Assert\Valid]
-    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
+    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame', 'getCategory','getEditor'])]
     #[MaxDepth(1)]
     private ?Collection $categories = null;
 
     #[ORM\ManyToOne(targetEntity: Editor::class, inversedBy: 'videogames' ,cascade: ['persist'])]
     #[ORM\JoinColumn(name:"editor_id", referencedColumnName:"id")]
-    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
+    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame', 'getCategory','getEditor'])]
     #[MaxDepth(1)]
     #[Assert\NotNull(message: "L'éditeur est obligatoire.")]
     #[Assert\Valid]

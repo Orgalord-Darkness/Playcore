@@ -21,7 +21,7 @@ class Editor
 
     #[ORM\Column(length: 255)]
     #[MaxDepth(1)]
-    #[Groups(['getEditor', 'createEditor','updateEditor','getVideoGame'])]
+    #[Groups(['getEditor', 'createEditor','updateEditor'])]
     #[Assert\NotBlank(message: "Le nom ne peut pas être vide.")]
     #[Assert\Type(type: 'string', message: 'Le nom doit être une chaîne de caractères.')]
     #[Assert\Length(
@@ -41,7 +41,7 @@ class Editor
     private ?string $country;
 
     #[ORM\OneToMany(targetEntity: VideoGame::class, mappedBy:'editor')]
-    #[Groups(['getEditor', 'createEditor','updateEditor'])]
+    #[Groups(['getEditor', 'createEditor','updateEditor','getCategory', 'getVideoGame'])]
     #[MaxDepth(1)]
     private Collection $videogames;
     

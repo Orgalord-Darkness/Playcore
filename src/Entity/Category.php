@@ -38,6 +38,7 @@ class Category
     )]
     #[Assert\Valid]
     #[MaxDepth(1)]
+    #[Groups(['getCategory', 'getVideoGame', 'getEditor'])]
     private Collection $videoGames;
 
     public function __construct()

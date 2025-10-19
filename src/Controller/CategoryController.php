@@ -23,7 +23,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
-final class CategoryController extends AbstractController
+class CategoryController extends AbstractController
 {
     #[Route('/category', name: 'app_category')]
     public function index(): Response

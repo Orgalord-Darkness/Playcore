@@ -12,7 +12,7 @@ use Symfony\Component\Mime\Email;
 use Twig\Environment;
 
 
-final class MailerController extends AbstractController
+class MailerController extends AbstractController
 {
     #[Route('/mailer', name: 'app_mailer')]
     public function index(): Response
