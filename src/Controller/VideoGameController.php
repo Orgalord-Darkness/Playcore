@@ -375,7 +375,8 @@ class VideoGameController extends AbstractController
         VideoGame $videogame, 
         EntityManagerInterface $em, 
         TagAwareCacheInterface $cachePool
-    ): JsonResponse {
+    ): JsonResponse 
+    {
         $coverImage = $videogame->getCoverImage();
 
         if ($coverImage) {
@@ -391,6 +392,7 @@ class VideoGameController extends AbstractController
                 }
             }
         }
+
         $em->remove($videogame);
         $em->flush();
 
@@ -398,6 +400,7 @@ class VideoGameController extends AbstractController
 
         return new JsonResponse(['status' => 'success'], Response::HTTP_OK);
     }
+
 
     #[Route('/newsletter/preview', name: 'newsletter_preview')]
     public function previewNewsletter(VideoGameRepository $videoGameRepository): Response
