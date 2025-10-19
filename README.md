@@ -117,23 +117,9 @@ Exemple : <img src="cid:mon_image">
 Le CID agit comme un identifiant unique pour une image mise en pièce jointe cachée.
 L’image est envoyée en pièce jointe cachée, puis affichée dans le corps du mail via son identifiant donc el CID.
 
-#### 🔍 Fonctionnement du code d’intégration
+#### Gestion des images dans l'API
 
-Récupère le chemin du dossier des images de couverture :
-$coverImageDir = $this->params->get('cover_image_directory');
-
-Pour chaque jeu, récupère le fichier image et construit son chemin complet.
-
-Si l’image existe :
-
-Génère un CID unique ($cid = uniqid('vg_', true)),
-
-Intègre l’image au mail avec embedFromPath(),
-
-Associe le CID à l’ID du jeu pour le template.
-
-➡️ Résultat : Les images s’affichent correctement dans les e-mails, même en dehors de l’application.
-
+J'ai du séparer l'update image et l'update de VideoGame parce-que PUT et mulltipart form/data sont incompatibles et utilisation de Setter pour le create VideoGame car aussi incompatibles avec le desrializer il me mettait erreur de syntaxe
 
 ### 🔁 Relations circulaires & pagination
 
@@ -144,6 +130,14 @@ L’utilisateur peut changer la page via un paramètre dans la route.
 Des erreurs de relations circulaires ont été résolues grâce à l’annotation :
 @MaxDepth(1)
 permettant de limiter les boucles de sérialisation.
+
+#### Erreur sur la première exécution de list category sur un numéro de page, fonctionne ls fois suivantes 
+
+### Relations
+Difficle d'utiliser les bons groupes de sérialisations pour afficher les bons attributs 
+
+#### Problème sur la création d'un jeu vidéo on ne peut ajouter qu'une catégorie, je pense à cause de la méthode des setter
+#### Implémentation de plusieurs catégories fonctionnele dans l'update VideoGame
 
 
 ## 📚 Documentations qui m'ont été utile
