@@ -14,7 +14,6 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
-    // CREATE ou UPDATE (persist)
     public function save(User $user, bool $flush = true): void
     {
         $em = $this->getEntityManager();
@@ -25,19 +24,16 @@ class UserRepository extends ServiceEntityRepository
         }
     }
 
-    // READ - Trouver un User par id
     public function findOneById(int $id): ?User
     {
         return $this->find($id);
     }
 
-    // READ - Trouver un User par email
     public function findOneByEmail(string $email): ?User
     {
         return $this->findOneBy(['email' => $email]);
     }
 
-    // READ - Trouver tous les Users
     public function findAllUsers(): array
     {
         return $this->findAll();
@@ -61,10 +57,6 @@ class UserRepository extends ServiceEntityRepository
     }
 
 
-    // UPDATE est souvent un save sur une entité déjà chargée
-    // Pas besoin d’une méthode spécifique, on utilise save()
-
-    // DELETE un User
     public function remove(User $user, bool $flush = true): void
     {
         $em = $this->getEntityManager();

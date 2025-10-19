@@ -165,4 +165,14 @@ final class UserController extends AbstractController
         
         return new JsonResponse(['status' => 'success'], Response::HTTP_OK);
     }
+
+    #[Route('/users/subscription', name: 'subscription_to_newsletter')]
+    public function usersBySubcription(UserRepository $repository)
+    {
+        $users = $repository->findUsersBySubcription();
+
+        return $this->render('user/index.html.twig', [
+            'users' => $users
+        ]);
+    }
 }
