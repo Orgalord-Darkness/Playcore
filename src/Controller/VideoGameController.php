@@ -173,12 +173,13 @@ class VideoGameController extends AbstractController
                         $categoryEntity = $category_repository->find($categoryData['id']);
                         if ($categoryEntity) {
                             $videogame->setCategory($categoryEntity);
+                        } else {
+                            return new JsonResponse(['error' => 'Category not found'], 400);
                         }
                     }
                 }
             }
         }
-
 
         $em->persist($videogame);
         $em->flush();
