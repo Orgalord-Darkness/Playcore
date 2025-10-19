@@ -21,7 +21,7 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['getCategory', 'createCategory', 'updateCategory','createVideoGame','updateVideoGame'])]
+    #[Groups(['getCategory', 'getVideoGame','createCategory', 'updateCategory','createVideoGame','updateVideoGame'])]
     #[Assert\NotBlank(message: "Le nom ne peut pas être vide.")]
     #[Assert\Type(type: 'string', message: 'Le nom doit être une chaîne de caractères.')]
     #[Assert\Length(
@@ -38,7 +38,7 @@ class Category
     )]
     #[Assert\Valid]
     #[MaxDepth(1)]
-    #[Groups(['getCategory', 'getVideoGame', 'getEditor'])]
+    #[Groups(['getCategory'])]
     private Collection $videoGames;
 
     public function __construct()

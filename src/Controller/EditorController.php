@@ -62,7 +62,7 @@ class EditorController extends AbstractController
 
     #[Route('/api/v1/editors/create',name:"add_editor", methods: ['POST'])]
     #[OA\Tag(name: 'Editors')]
-    #[IsGranted("ROLE_ADMIN")]
+    #[IsGranted("ROLE_ADMIN", message:'Il faut être admin pour utiliser cette fonctionnalité')]
     #[OA\RequestBody(
         content: new OA\JsonContent(
             type: 'object',
@@ -99,7 +99,7 @@ class EditorController extends AbstractController
 
     #[Route('/api/v1/editor/{id}', name:"update_editor", methods:['PUT'])]
     #[OA\Tag(name: 'Editors')]
-    #[IsGranted("ROLE_ADMIN")]
+    #[IsGranted("ROLE_ADMIN", message:'Il faut être admin pour utiliser cette fonctionnalité')]
     #[OA\RequestBody(
         content: new OA\JsonContent(
             type: 'object',
@@ -134,7 +134,7 @@ class EditorController extends AbstractController
     }
 
     #[Route('/api/v1/editor/{id}', name:'deleteEditor', methods:['DELETE'])]
-    #[IsGranted('ROLE_ADMIN', message:'Vous n\'êtes pas autorisé à supprimer un élément')]
+    #[IsGranted("ROLE_ADMIN", message:'Il faut être admin pour utiliser cette fonctionnalité')]
     #[OA\Tag(name: 'Editors')]
     public function deleteEditor(Editor $editor, EntityManagerInterface $em, TagAwareCacheInterface $cachePool): JsonResponse
     {

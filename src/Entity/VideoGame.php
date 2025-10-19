@@ -28,7 +28,7 @@ class VideoGame
     #[Assert\Type(type: 'string', message: 'Le titre doit être une chaîne de caractères.')]
     #[Assert\NotBlank(message: "un titre est obligatoire")]
     #[MaxDepth(1)]
-    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
+    #[Groups(['getVideoGame', 'getCategory','createVideoGame', 'updateVideoGame'])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
@@ -49,13 +49,13 @@ class VideoGame
     #[ORM\JoinTable(name: 'video_game_category')]
     #[Assert\Type(type: Collection::class, message: 'Les catégories doivent être une collection.')]
     #[Assert\Valid]
-    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame', 'getCategory','getEditor'])]
+    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
     #[MaxDepth(1)]
     private ?Collection $categories = null;
 
     #[ORM\ManyToOne(targetEntity: Editor::class, inversedBy: 'videogames' ,cascade: ['persist'])]
     #[ORM\JoinColumn(name:"editor_id", referencedColumnName:"id")]
-    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame', 'getCategory','getEditor'])]
+    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
     #[MaxDepth(1)]
     #[Assert\NotNull(message: "L'éditeur est obligatoire.")]
     #[Assert\Valid]

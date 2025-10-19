@@ -64,6 +64,12 @@ class EditorFixtures extends Fixture
         $manager->persist($bandaiNamco);
         $this->addReference('editor_bandai-namco', $bandaiNamco);
 
+        $cdprojekt = new Editor();
+        $cdprojekt->setName('CD Projekt')
+                    ->setCountry('Pologne');
+        $manager->persist($cdprojekt);
+        $this->addReference('cd-projekt', $cdprojekt);
+
         $manager->flush();
     }
 }

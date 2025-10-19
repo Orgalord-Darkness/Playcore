@@ -15,8 +15,6 @@ class CategoryRepository extends ServiceEntityRepository
     
     public function findAllWithPagination($page, $limit): array
     {
-        
-
         $qb = $this->createQueryBuilder('c')
         ->select('c', 'vg',) 
         ->leftJoin('c.videoGames', 'vg')
