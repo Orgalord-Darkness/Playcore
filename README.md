@@ -13,6 +13,14 @@ L’application permet :
 🖼️ D’afficher les images de couverture dans les e-mails grâce à l’intégration via CID (Content-ID).
 
 ## ⚙️ Fonctionnement général
+### Installation
+
+#### composer install 
+#### mettre ses identifiants mail trap dans le .env
+#### php bin/console doctrine:migration:migrate
+#### php bin/console doctrine:fixtures:load
+
+
 ### 🧱 Entités principales
 
 VideoGame → id, title, releaseDate, description, coverImage, editor_id
