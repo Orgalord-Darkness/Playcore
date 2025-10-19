@@ -79,7 +79,7 @@ class VideoGameController extends AbstractController
 
     #[Route('/api/v1/videogame/create', name:'add_video_game', methods: ['POST'])]
     #[OA\Tag(name: 'Video Games')]
-    #[IsGranted("ROLE_ADMIN")]
+    #[IsGranted("ROLE_ADMIN", message:'Il faut être admin pour utiliser cette fonctionnalité')]
     #[OA\RequestBody(
         required: true,
         content: new OA\MediaType(
@@ -97,7 +97,7 @@ class VideoGameController extends AbstractController
                         properties: [
                             new OA\Property(property: "id", type: "integer", example: 10),
                             new OA\Property(property: "name", type: "string", example: "CD Projekt"),
-                            new OA\Property(property: "country", type: "string", example: "Japan"),
+                            new OA\Property(property: "country", type: "string", example: "Pologne"),
                         ]
                     ),
                     new OA\Property(
@@ -195,7 +195,7 @@ class VideoGameController extends AbstractController
 
     #[Route('/api/v1/videogame/{id}', name: "update_video_game", methods: ['PUT'])]
     #[OA\Tag(name: 'Video Games')]
-    #[IsGranted("ROLE_ADMIN")]
+    #[IsGranted("ROLE_ADMIN", message:'Il faut être admin pour utiliser cette fonctionnalité')]
     #[OA\RequestBody(
         required: true,
         content: new OA\JsonContent(
@@ -212,7 +212,7 @@ class VideoGameController extends AbstractController
                     properties: [
                         new OA\Property(property: "id", type: "integer", example: 10),
                         new OA\Property(property: "name", type: "string", example: "CD Projekt"),
-                        new OA\Property(property: "country", type: "string", example: "Japan"),
+                        new OA\Property(property: "country", type: "string", example: "Pologne"),
                     ]
                 ),
                 new OA\Property(
@@ -298,7 +298,7 @@ class VideoGameController extends AbstractController
 
     #[Route('/api/v1/videogame/{id}/cover-image', name: "update_video_game_cover_image", methods: ['POST'])]
     #[OA\Tag(name: 'Video Games')]
-    #[IsGranted("ROLE_ADMIN")]
+    #[IsGranted("ROLE_ADMIN", message:'Il faut être admin pour utiliser cette fonctionnalité')]
     #[OA\RequestBody(
         required: true,
         content: new OA\MediaType(
@@ -370,7 +370,7 @@ class VideoGameController extends AbstractController
 
     #[Route('/api/v1/videogame/{id}', name: 'deleteVideoGame', methods: ['DELETE'])]
     #[OA\Tag(name: 'Video Games')]
-    #[IsGranted("ROLE_ADMIN")]
+    #[IsGranted("ROLE_ADMIN", message:'Il faut être admin pour utiliser cette fonctionnalité')]
     public function deleteVideoGame(
         VideoGame $videogame, 
         EntityManagerInterface $em, 
