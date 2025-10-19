@@ -95,9 +95,9 @@ class VideoGameController extends AbstractController
                     new OA\Property(property: "editor", 
                         type: "object", 
                         properties: [
-                            new OA\Property(property: "id", type: "integer", example: 1),
-                            new OA\Property(property: "name", type: "string", example: "Nintendo"),
-                            new OA\Property(property: "country", type: "string", example: "Japon"),
+                            new OA\Property(property: "id", type: "integer", example: 10),
+                            new OA\Property(property: "name", type: "string", example: "CD Projekt"),
+                            new OA\Property(property: "country", type: "string", example: "Japan"),
                         ]
                     ),
                     new OA\Property(
@@ -210,9 +210,9 @@ class VideoGameController extends AbstractController
                     property: "editor",
                     type: "object",
                     properties: [
-                        new OA\Property(property: "id", type: "integer", example: 1),
-                        new OA\Property(property: "name", type: "string", example: "Nintendo"),
-                        new OA\Property(property: "country", type: "string", example: "Japon"),
+                        new OA\Property(property: "id", type: "integer", example: 10),
+                        new OA\Property(property: "name", type: "string", example: "CD Projekt"),
+                        new OA\Property(property: "country", type: "string", example: "Japan"),
                     ]
                 ),
                 new OA\Property(
