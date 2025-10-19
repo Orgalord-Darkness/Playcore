@@ -26,7 +26,7 @@ class Editor
     #[Assert\Type(type: 'string', message: 'Le nom doit être une chaîne de caractères.')]
     #[Assert\Length(
         max: 255,
-        maxMessage: "Le nom ne peut pas dépasser {{ limit }} caractères."
+        maxMessage: "Le nom ne peut pas dépasser 255 caractères."
     )]
     private ?string $name;
 
@@ -36,7 +36,7 @@ class Editor
     #[Assert\Type(type: 'string', message: 'Le pays doit être une chaîne de caractères.')]
     #[Assert\Length(
         max: 255,
-        maxMessage: "Le nom du pays ne peut pas dépasser {{ limit }} caractères."
+        maxMessage: "Le nom du pays ne peut pas dépasser 255 caractères."
     )]
     private ?string $country;
 

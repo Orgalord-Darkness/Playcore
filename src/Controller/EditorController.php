@@ -81,7 +81,7 @@ final class EditorController extends AbstractController
         UrlGeneratorInterface $urlGenerator,
         TagAwareCacheInterface $cachePool): JsonResponse
     {
-        $editor = $serializer->deserialize($request->getContent(), Editor::class, 'json');
+        $editor = $serializer->deserialize($request->getContent(), Editor::class, 'json', ['groups' => ['createEditor']]);
         $em->persist($editor);
         $em->flush();
 

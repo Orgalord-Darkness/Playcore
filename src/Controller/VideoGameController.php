@@ -226,7 +226,7 @@ final class VideoGameController extends AbstractController
                 $request->getContent(),
                 VideoGame::class,
                 'json',
-                [AbstractNormalizer::OBJECT_TO_POPULATE => $currentVideoGame]
+                [AbstractNormalizer::OBJECT_TO_POPULATE => $currentVideoGame,'groups' => ['updateVideoGame']]
             );
 
             $data = json_decode($request->getContent(),true);

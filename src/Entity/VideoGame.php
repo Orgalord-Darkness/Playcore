@@ -19,7 +19,7 @@ class VideoGame
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['getVideoGame', 'createVideoGame', 'updateVideoGame'])]
+    #[Groups(['getVideoGame'])]
     #[Assert\Type(type: 'integer', message: 'L\'ID doit être un entier.')]
     private ?int $id = null;
 

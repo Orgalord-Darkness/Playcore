@@ -75,7 +75,7 @@ final class UserController extends AbstractController
         TagAwareCacheInterface $cachePool,
         UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
-        $user = $serializer->deserialize($request->getContent(), User::class, 'json');
+        $user = $serializer->deserialize($request->getContent(), User::class, 'json', ['groups' => ['createUser']]);
 
         $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
         $user->setPassword($hashedPassword);
@@ -127,7 +127,10 @@ final class UserController extends AbstractController
         $updatedUser = $serializer->deserialize($request->getContent(),
             User::class, 
             'json',
-            [AbstractNormalizer::OBJECT_TO_POPULATE => $currentUser]);
+             [
+                AbstractNormalizer::OBJECT_TO_POPULATE => $currentUser,
+                'groups' => ['updateUser']
+            ]);
         
         $hashedPassword = $passwordHasher->hashPassword($updatedUser, $updatedUser->getPassword());
         $updatedUser->setPassword($hashedPassword);

@@ -78,7 +78,7 @@ final class CategoryController extends AbstractController
         UrlGeneratorInterface $urlGenerator,
         TagAwareCacheInterface $cachePool): JsonResponse
     {
-        $category = $serializer->deserialize($request->getContent(), Category::class, 'json');
+        $category = $serializer->deserialize($request->getContent(), Category::class, 'json',['groups' => ['createCategory']]);
         $em->persist($category);
         $em->flush();
 
@@ -113,7 +113,8 @@ final class CategoryController extends AbstractController
         $updatedCategory = $serializer->deserialize($request->getContent(),
             Category::class, 
             'json',
-            [AbstractNormalizer::OBJECT_TO_POPULATE => $currentCategory]);
+            [AbstractNormalizer::OBJECT_TO_POPULATE => $currentCategory,
+            'groups' => ['updateCategory']]);
         
         $em->persist($updatedCategory);
         $em->flush();
